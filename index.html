@@ -48,36 +48,22 @@
             background-position: center; /* 이미지가 중앙에 오도록 설정 */
         }
         
-        header, #course-list-view, #detail-view {
+        /* [수정됨]: header 스타일 제거 (header HTML 삭제로 불필요) */
+        #course-list-view, #detail-view {
             position: relative;
             z-index: 1; 
         }
 
-        /* --- 2. 헤더 및 로고 스타일 --- */
-        header { 
-            text-align: center; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-            border-bottom: 3px solid #ff69b4; 
-        }
-        #logo-placeholder h1 { 
-            color: #d11e8a; 
-            font-size: 2.2em; 
-            margin: 0; 
-            font-weight: 900;
-        }
-        #logo-placeholder h2 { 
-            color: #5B5BFF; 
-            font-size: 1.1em; 
-            margin-top: 5px; 
-            font-weight: 500;
-        }
+        /* --- 2. 헤더 및 로고 스타일 (삭제됨) --- */
+        /* 삭제된 header 스타일 */
 
         /* --- 3. 코스 목록 스타일 --- */
         .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
+            /* [수정됨]: 헤더 삭제로 인해 상단 마진을 추가하여 위치 조정 */
+            margin-top: 20px; 
             margin-bottom: 25px;
         }
         .course-item {
@@ -272,10 +258,10 @@
             cursor: pointer;
             width: 100%;
             font-weight: bold;
-            box-shadow: 0 4px 0 #4a4adf; /* 추가: 다운로드 버튼과 동일한 쉐도우 */
+            box-shadow: 0 4px 0 #4a4adf; 
         }
         #modal-download-btn {
-            background-color: #ff69b4; /* 추가: 다운로드 버튼 스타일 */
+            background-color: #ff69b4; 
             box-shadow: 0 4px 0 #d11e8a;
         }
         #modal-close-btn { 
@@ -293,13 +279,6 @@
     <div class="phone-frame" id="phone-frame-capture">
         
         <div id="main-background"></div>
-
-        <header>
-            <div id="logo-placeholder">
-                <h1 style="color:#d11e8a; margin:0;">DAISY HOOKUPS</h1>
-                <h2 style="color:#5B5BFF; margin-top:5px;">FIND YOUR MATCH</h2>
-            </div>
-        </header>
 
         <div id="course-list-view">
             <h3 class="course-list-header">💎 코스 목록 및 가격 💎</h3>
@@ -345,6 +324,7 @@
         </div>
         
         <button id="modal-download-btn" class="modal-button" onclick="downloadFrameAsPNG(true)">⬇️ 견적서 PNG 다운로드</button>
+
         <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
