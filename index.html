@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY HOOKUPS | 코스 및 가격표 (최종 통합 캡처)</title>
+    <title>DAISY HOOKUPS | 코스 및 가격표 (관리자 편집 가능 - 최종)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* --- 1. 기본 설정 및 크기 지정 --- */
         body { 
             font-family: 'Malgun Gothic', 'Arial', sans-serif; 
-            margin: 20px; /* 캡처 시 잘리지 않도록 여백 확보 */
+            margin: 0; 
             padding: 0; 
             display: flex; 
             justify-content: center; 
             background-color: #f0f2f5; 
         }
         .phone-container {
-            position: relative; 
+            position: relative; /* ★★★ 절대 위치 기준점 설정 ★★★ */
             display: flex;
             justify-content: center;
-            overflow: visible; /* 캡처를 위해 overflow:auto 대신 visible로 설정 */
-            z-index: 10;
         }
         .phone-frame {
             width: 680px; 
@@ -55,14 +53,14 @@
 
         /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
-            position: absolute; 
-            top: 30px; 
-            right: -170px; 
-            z-index: 1001; 
+            position: absolute; /* ★★★ 절대 위치 지정 ★★★ */
+            top: 30px; /* 프레임 상단 기준 30px 아래 */
+            right: -170px; /* 프레임 오른쪽 기준 바깥으로 170px 이동 (버튼 너비 고려) */
+            z-index: 1001; /* 다른 요소 위에 항상 표시 */
             display: flex;
-            flex-direction: column; 
+            flex-direction: column; /* 버튼들을 세로로 나열 */
             gap: 10px; 
-            width: 150px; 
+            width: 150px; /* 버튼 그룹 너비 지정 */
         }
 
         /* 개별 버튼 스타일 조정 */
@@ -72,7 +70,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 1em;
-            width: 100%; 
+            width: 100%; /* 그룹 너비에 맞춤 */
             font-weight: bold;
             box-shadow: 0 4px 0 rgba(0,0,0,0.3);
             transition: background-color 0.2s;
@@ -94,7 +92,7 @@
             box-shadow: 0 4px 0 #b30000 !important;
         }
         
-        /* --- 3. 코스 목록 및 편집 모드 스타일 --- */
+        /* --- 3. 코스 목록 스타일 (다시 원래 마진 사용) --- */
         #admin-view {
             display: none; 
             background-color: #ffe0f7;
@@ -104,11 +102,53 @@
             border: 2px dashed #d11e8a;
         }
         
+        /* 나머지 편집 모드 스타일은 유지 */
+        .admin-course-item {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffb6c1;
+        }
+        .admin-course-item input, .admin-course-item button, .admin-option-item input {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .admin-course-item .price-input { width: calc(50% - 15px); float: right; margin-left: 10px; }
+        .admin-course-item .name-input { width: calc(50% - 15px); }
+
+        .admin-option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+        .admin-option-item input {
+            width: 35%;
+            margin: 0;
+        }
+        .admin-option-item button {
+            width: 25%;
+            padding: 8px 5px;
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        .admin-button-group button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
         .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            margin-top: 150px; 
+            margin-top: 150px; /* ★★★ 원래의 마진 복구 (버튼이 바깥으로 빠졌기 때문) ★★★ */
             margin-bottom: 30px; 
         }
         .course-item {
@@ -135,7 +175,7 @@
             margin-left: 15px;
         }
         
-        /* --- 4. 상세 뷰 및 옵션 스타일 --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 (유지) --- */
         #detail-view { 
             display: none; 
             flex-direction: column;
@@ -144,18 +184,79 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        /* ... (나머지 상세 뷰 및 모달 스타일은 이전과 동일하게 유지) ... */
         #detail-view h3 {
             color: #d11e8a;
             font-size: 1.6em;
             margin-bottom: 10px;
         }
-        
-        /* --- 5. 최종 견적 모달 (캡처를 위해 z-index 조정) --- */
+        #detail-view p {
+            font-size: 1.1em;
+            color: #333;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        #options-list h3 {
+            color: #5B5BFF;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ff69b4;
+            padding-left: 10px;
+        }
+        .option-item input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 15px;
+            accent-color: #ff69b4; 
+        }
+
+        /* 합계 금액 필드 */
+        #total-display {
+            background-color: #f7f7f7;
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+        }
+        #current-total-price {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #ff0000;
+        }
+
+        /* --- 5. 상세/견적 버튼 --- */
+        .action-btn { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 25px; 
+            border-radius: 10px; 
+            font-size: 1.2em; 
+            cursor: pointer; 
+            border: none;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        #quote-modal-btn { 
+            background-color: #ff69b4; 
+            color: white; 
+            box-shadow: 0 4px 0 #d11e8a;
+        }
+        #back-btn { 
+            background-color: #ccc; 
+            color: #333;
+            box-shadow: 0 4px 0 #999;
+        }
+
+        /* --- 6. 최종 견적 모달 --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0, 0, 0, 0.7); 
-            z-index: 1000; /* phone-container보다 훨씬 높게 유지 */
+            z-index: 1000; 
             justify-content: center; align-items: center; 
         }
         .modal-content { 
@@ -173,7 +274,49 @@
             padding-bottom: 15px; 
             margin-bottom: 20px;
         }
+        .quote-header h3 { color: #d11e8a; font-size: 1.8em;}
         
+        .quote-options { 
+            padding: 10px 0; 
+            border-top: 1px dashed #ffb6c1; 
+            border-bottom: 1px dashed #ffb6c1; 
+            margin-bottom: 20px;
+        }
+        .quote-options h4 {
+            color: #5B5BFF;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-bottom: 8px;
+        }
+        .quote-options ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .quote-options li {
+            list-style-type: none; 
+            position: relative;
+            padding-left: 20px;
+        }
+        .quote-options li::before {
+            content: "🌸"; 
+            position: absolute;
+            left: 0;
+            font-size: 0.8em;
+        }
+
+        /* 최종 합계 금액 강조 */
+        .final-total {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #d11e8a; 
+        }
+        .final-total .total-price { 
+            font-size: 3.5em; 
+            font-weight: 900; 
+            color: #ff0000; 
+        }
+
         /* 모달 버튼 스타일 */
         .modal-button {
             background-color: #5B5BFF; 
@@ -193,12 +336,11 @@
             margin-top: 15px;
             box-shadow: 0 4px 0 #999;
         }
-
     </style>
 </head>
 <body>
 
-<div class="phone-container" id="capture-container">
+<div class="phone-container">
     
     <div class="phone-frame" id="phone-frame-capture">
         
@@ -240,12 +382,12 @@
     
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
-        <button id="download-list-btn" onclick="downloadFrameAsPNG()">🖼️ PNG 다운로드</button>
+        <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ PNG 다운로드</button>
     </div>
-</div>
+    </div>
 
 <div id="final-quote-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" id="modal-capture-target">
         <div class="quote-header">
             <h3>DAISY 최종 견적서</h3>
         </div>
@@ -263,7 +405,7 @@
 </div>
 
 <script>
-    // 최초 기본 데이터 (유지)
+    // 최초 기본 데이터
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 50000, options: [{name: '로리플', price: 20000}, {name: '애널', price: 15000}, {name: '코스추가1', price: 10000}, {name: '코스추가2', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -349,11 +491,12 @@
     }
 
 
-    // --- 관리자 편집 모드 함수 (유지) ---
+    // --- 관리자 편집 모드 함수 ---
     function toggleAdminMode() {
         isEditingMode = !isEditingMode;
         
         if (isEditingMode) {
+            // 편집 모드 켜기
             document.getElementById('course-list-view').style.display = 'none';
             document.getElementById('detail-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'block';
@@ -362,6 +505,7 @@
             document.getElementById('download-list-btn').style.display = 'none'; 
             renderAdminEditor();
         } else {
+            // 편집 모드 끄고 일반 목록으로 돌아가기
             renderCourseList();
         }
     }
@@ -390,6 +534,7 @@
                     <div class="admin-options-container" id="options-${key}">
             `;
             
+            // 옵션 목록 렌더링
             course.options.forEach((opt, index) => {
                 html += renderAdminOptionItem(key, index, opt.name, opt.price);
             });
@@ -495,7 +640,7 @@
         toggleAdminMode();
     }
 
-    // --- 사용자 상호작용 함수 (유지) ---
+    // --- 사용자 상호작용 함수 (이전과 동일) ---
     function selectCourse(key) {
         currentSelectedCourseKey = key;
         const course = coursesData[key];
@@ -606,51 +751,32 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
     
-    // --- PNG 다운로드 기능 (최종 수정: 모달 포함 전체 화면 캡처) ---
-    function downloadFrameAsPNG() {
+    // --- PNG 다운로드 기능 ---
+    function downloadFrameAsPNG(isModalDownload) {
         if (isEditingMode) {
             alert("편집 모드에서는 캡처할 수 없습니다. 일반 가격표 보기로 전환해 주세요.");
             return;
         }
         
-        const modal = document.getElementById('final-quote-modal');
-        const isModalOpen = modal.style.display === 'flex';
-        
-        let captureElement;
-        let fileName;
-        let scrollY = 0;
+        let captureElement = document.getElementById('phone-frame-capture'); 
+        let fileName = 'DAISY_코스목록_캡처.png';
 
-        if (isModalOpen) {
-            // ★★★ 모달이 열려 있으면, body 전체를 캡처하여 모달과 배경을 모두 포함 ★★★
-            captureElement = document.body;
-            fileName = 'DAISY_최종견적서_전체화면_캡처.png';
-        } else {
-            // 모달이 닫혀 있으면, 기존처럼 phone-frame-capture (스크롤 가능 영역) 캡처
-            captureElement = document.getElementById('phone-frame-capture');
-            fileName = 'DAISY_코스목록_캡처.png';
-            scrollY = -captureElement.scrollTop; 
-        }
-        
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
             ignoreElements: (node) => {
-                // 1. 외부 컨트롤 버튼 그룹
-                if (node.parentElement && node.parentElement.id === 'control-buttons') {
+                // 캡처에서 제외할 요소: 모달 버튼, 견적/뒤로가기 버튼 
+                if (node.classList.contains('modal-button') || node.classList.contains('action-btn')) {
                     return true;
                 }
-                // 2. 견적서 내부의 '닫기' 버튼 (모달이 열려 있을 때만 제외)
-                if (isModalOpen && node.id === 'modal-close-btn') {
+                // control-buttons는 이제 프레임 밖에 있으므로 캡처 대상이 아니지만, 혹시 모를 내부 요소 캡처를 위해 확인
+                if (node.id === 'control-buttons') {
                     return true;
-                }
-                // 3. 코스 상세 뷰의 '견적서 보기' 및 '뒤로가기' 버튼 (모달이 닫혀 있을 때만 제외)
-                if (!isModalOpen && node.classList.contains('action-btn')) {
-                     return true;
                 }
                 return false;
             },
-            // 모달이 닫혀 있을 때만 스크롤 보정 적용
-            ...(!isModalOpen ? { windowHeight: captureElement.scrollHeight, scrollY: scrollY } : {})
+            windowHeight: captureElement.scrollHeight,
+            scrollY: -captureElement.scrollTop
         }).then(canvas => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
