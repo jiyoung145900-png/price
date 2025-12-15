@@ -42,14 +42,18 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            /* 여기에 배경 이미지 스타일을 넣어주세요. */
+            /* * 이 부분에 배경 이미지를 설정하세요. 
+             * 예: background-image: url('YOUR_BACKGROUND_IMAGE_URL.jpg');
+             * background-size: cover;
+             * background-position: center; 
+            */
         }
         header, #course-list-view, #detail-view, #admin-panel {
             position: relative;
             z-index: 1; 
         }
         
-        /* --- 2. 코스 목록 및 상세 스타일 --- */
+        /* --- 2. 코스 목록 및 상세 스타일 (생략) --- */
         .course-item {
             background-color: rgba(255, 250, 252, 0.9); 
             border: 1px solid #ffb6c1;
@@ -122,21 +126,6 @@
         #external-save-btn { background-color: green; display: none; } 
         #external-quote-btn { background-color: #ff69b4; display: none; } 
         #external-back-btn { background-color: #ccc; color: #333; display: none; } 
-
-        /* --- 5. 관리자 패널 스타일 --- */
-        #admin-panel { 
-            display: none; 
-            padding: 20px; 
-            border: 3px solid orange; 
-            background-color: #fff8e1; 
-            border-radius: 10px; 
-            margin-bottom: 20px;
-        }
-        /* 관리자 입력 스타일 유지 */
-        .admin-panel-item label { display: block; font-weight: bold; margin-top: 10px; }
-        .admin-panel-item input[type="text"], .admin-panel-item textarea {
-            width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
-        }
     </style>
 </head>
 <body>
@@ -419,12 +408,12 @@
         let captureElement;
         let fileName;
         
-        // 1. 캡처 대상 결정
-        if (isModalDownload || document.getElementById('final-quote-modal').style.display === 'flex') {
-            captureElement = document.getElementById('modal-capture-target'); // 모달 내용 캡처
+        // 1. 캡처 대상 결정: isModalDownload이 true이면 모달 캡처 (모달 버튼 제외)
+        if (isModalDownload) {
+            captureElement = document.getElementById('modal-capture-target'); 
             fileName = 'DAISY_최종견적서.png';
         } else {
-            // 휴대폰 프레임 전체 캡처 (옵션 목록이 길어도 전체 캡처됨)
+            // isModalDownload이 false이면 프레임 전체 캡처 (옵션 화면 등)
             captureElement = document.getElementById('phone-frame-capture'); 
             fileName = 'DAISY_현재화면_캡처.png';
         }
