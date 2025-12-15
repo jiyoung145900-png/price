@@ -80,6 +80,12 @@
 
         /* 버튼별 색상 설정 */
         #toggle-admin-btn { background-color: #5B5BFF; color: white; }
+        /* [추가] 편집 저장 버튼 스타일 */
+        #save-admin-changes-btn {
+            background-color: #4CAF50; /* 녹색 */
+            color: white;
+            display: none; /* 초기에는 숨김 */
+        }
         #download-list-btn { background-color: #ff69b4; color: white; }
         #show-quote-btn { background-color: #9c27b0; color: white; }
         #save-options-btn { background-color: #00bcd4; color: white; }
@@ -134,17 +140,16 @@
             margin-bottom: 5px; 
             align-items: center; 
         }
-        /* [핵심 복원] 옵션 이름과 가격 입력 필드의 너비 조정 */
         .admin-option-item input[data-opt-field="name"] { 
-            width: 40%; /* 이름 필드 */
+            width: 40%; 
             margin: 0; 
         }
         .admin-option-item input[data-opt-field="price"] {
-            width: 35%; /* 가격 필드 */
+            width: 35%; 
             margin: 0;
         }
         .admin-option-item button { 
-            width: 20%; /* 삭제 버튼 */
+            width: 20%; 
             padding: 8px 5px; 
             margin: 0; 
             font-size: 0.8em; 
@@ -221,8 +226,7 @@
             <div id="admin-course-editor">
                 </div>
             <button class="admin-button-group" style="background-color:#5B5BFF; color:white;" onclick="addNewCourse()">➕ 새 코스 추가</button>
-            <button class="admin-button-group" style="background-color:#4CAF50; color:white;" onclick="saveAdminChanges()">💾 모든 변경 사항 저장</button>
-        </div>
+            </div>
 
 
         <div id="detail-view">
@@ -244,6 +248,7 @@
     
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
+        <button id="save-admin-changes-btn" onclick="saveAdminChanges()">✅ 편집 내용 저장</button>
         <button id="download-list-btn" onclick="downloadFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">🖼️ PNG 다운로드</button>
         
         <button id="show-quote-btn" class="detail-only" onclick="showFinalQuote()">💸 견적서 보기</button>
@@ -363,10 +368,14 @@
         document.getElementById('detail-view').style.display = 'none';
         document.getElementById('admin-view').style.display = 'none'; 
         
+        // [수정] 편집 모드 전환/종료 버튼 상태 업데이트
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
         document.getElementById('download-list-btn').style.display = 'block'; 
         
+        // [수정] 편집 저장 버튼 숨김
+        document.getElementById('save-admin-changes-btn').style.display = 'none';
+
         // 상세 페이지 전용 버튼 숨김
         document.getElementById('show-quote-btn').classList.add('detail-only');
         document.getElementById('download-quote-btn-external').classList.add('detail-only');
@@ -408,8 +417,12 @@
             document.getElementById('course-list-view').style.display = 'none';
             document.getElementById('detail-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'block';
-            document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료';
+            
+            // [수정] 편집 모드 버튼 상태 변경 및 저장 버튼 노출
+            document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료 (미저장)';
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
+            document.getElementById('save-admin-changes-btn').style.display = 'block'; // 저장 버튼 노출
+
             document.getElementById('download-list-btn').style.display = 'none'; 
             
             // 상세 페이지 전용 버튼 숨김
@@ -419,7 +432,14 @@
 
             renderAdminEditor();
         } else {
-            renderCourseList();
+             // 편집 모드 종료 시, 저장하지 않고 그냥 돌아갈지 묻는 것이 좋습니다.
+            if(confirm("편집 모드를 저장하지 않고 종료하시겠습니까? (저장하려면 '취소'를 누르고 '편집 내용 저장'을 누르세요)")) {
+                loadCoursesData(); // 저장하지 않을 경우 마지막 저장 상태로 복원
+                renderCourseList();
+            } else {
+                // 사용자가 취소를 누르면 모드 유지
+                isEditingMode = true; 
+            }
         }
     }
 
@@ -432,16 +452,12 @@
         renderAdminEditor(); 
     }
     
-    /**
-     * [수정] 새 옵션을 추가하고 즉시 편집 가능하도록 렌더링을 재실행합니다.
-     */
     function addOptionToCourse(courseKey) {
         if (!coursesData[courseKey].options) {
             coursesData[courseKey].options = [];
         }
-        // 임시 데이터 추가 (사용자가 저장 버튼을 눌러야 최종 반영됨)
         coursesData[courseKey].options.push({name: '새 옵션', price: 0}); 
-        renderAdminEditor(); // 변경된 목록으로 에디터 재렌더링
+        renderAdminEditor(); 
     }
 
 
@@ -484,9 +500,6 @@
         document.getElementById('phone-frame-capture').scrollTop = 0;
     }
 
-    /**
-     * [복원] 관리자 옵션 편집 항목을 렌더링합니다.
-     */
     function renderAdminOptionItem(courseKey, index, name, price) {
         return `
             <div class="admin-option-item" data-index="${index}">
@@ -526,6 +539,9 @@
         }
     }
 
+    /**
+     * [수정] 외부 버튼에서 호출되며, 변경 사항을 저장하고 편집 모드를 종료합니다.
+     */
     function saveAdminChanges() {
         const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
         const newCoursesData = {};
@@ -567,8 +583,11 @@
         newCourseIndex = maxNewIndex; 
 
         saveCoursesData(); 
-        alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
-        toggleAdminMode();
+        alert("✅ 코스 데이터가 성공적으로 저장되었습니다!");
+        
+        // 저장 후 편집 모드 종료 상태로 UI 업데이트
+        isEditingMode = false;
+        renderCourseList();
     }
 
     // --- 사용자 상호작용 함수 ---
@@ -588,6 +607,9 @@
         document.getElementById('show-quote-btn').classList.remove('detail-only');
         document.getElementById('download-quote-btn-external').classList.remove('detail-only');
         document.getElementById('save-options-btn').classList.remove('detail-only');
+        
+        // [수정] 편집 저장 버튼 숨김 (일반 모드이므로)
+        document.getElementById('save-admin-changes-btn').style.display = 'none';
         
         renderOptions(course.options);
         
@@ -630,12 +652,11 @@
             }
         });
         
-        updateTotalPrice(false); // 로드 시에는 저장 함수 호출 안함
+        updateTotalPrice(false); 
     }
 
     /**
      * 총 금액 업데이트. 옵션 변경 시 자동 저장합니다.
-     * @param {boolean} [shouldSave=true] - 저장 함수 호출 여부 (기본값 true)
      */
     function updateTotalPrice(shouldSave = true) {
         if (!currentSelectedCourseKey) return;
@@ -650,7 +671,6 @@
 
         document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
         
-        // 옵션 변경 시 자동 저장
         if (shouldSave) {
             saveUserSelection(); 
         }
@@ -785,6 +805,7 @@
         loadCoursesData();
         renderCourseList();
         document.getElementById('final-quote-modal').style.display = 'none';
+        document.getElementById('save-admin-changes-btn').style.display = 'none'; // 초기 로드 시 숨김
     };
 </script>
 
