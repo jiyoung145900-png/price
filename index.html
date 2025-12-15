@@ -17,9 +17,6 @@
             position: relative; 
         }
         
-        /* [핵심 수정: 캡처 시 전체 화면 래퍼 제거 - 버튼 유지] 
-         * 이제 견적서 캡처는 모달만 고정하여 캡처하고, DOM 구조를 건드리지 않습니다. */
-
         .phone-container {
             position: relative; 
             display: flex;
@@ -46,7 +43,7 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            background-image: url('bok.png'); /* 필요 시 이미지 경로 수정 */
+            background-image: url('bok.png'); 
             background-size: cover; 
             background-position: center; 
         }
@@ -56,7 +53,7 @@
             z-index: 1; 
         }
 
-        /* --- 2. 관리자/다운로드/견적/저장 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
+        /* --- 2. 제어 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
             position: absolute; 
             top: 30px; 
@@ -68,7 +65,7 @@
             width: 150px; 
         }
 
-        /* 개별 버튼 스타일 조정 */
+        /* 개별 버튼 스타일 */
         #control-buttons button {
             padding: 10px 10px; 
             border: none;
@@ -82,27 +79,11 @@
         }
 
         /* 버튼별 색상 설정 */
-        #toggle-admin-btn {
-            background-color: #5B5BFF; /* 파랑 */
-            color: white;
-        }
-        #download-list-btn {
-            background-color: #ff69b4; /* 핫핑크 */
-            color: white;
-        }
-        #show-quote-btn {
-            background-color: #9c27b0; /* 보라색 (견적서 보기) */
-            color: white;
-        }
-        #save-options-btn {
-            background-color: #00bcd4; /* 청록색 (옵션 저장) */
-            color: white;
-        }
-        /* [추가] 견적서 캡처 버튼 스타일 */
-        #download-quote-btn-external {
-            background-color: #4CAF50; /* 녹색 */
-            color: white; 
-        }
+        #toggle-admin-btn { background-color: #5B5BFF; color: white; }
+        #download-list-btn { background-color: #ff69b4; color: white; }
+        #show-quote-btn { background-color: #9c27b0; color: white; }
+        #save-options-btn { background-color: #00bcd4; color: white; }
+        #download-quote-btn-external { background-color: #4CAF50; color: white; }
 
         /* 편집 모드일 때의 버튼 색상 */
         .admin-mode-active {
@@ -144,7 +125,6 @@
         /* --- 5. 최종 견적 모달 --- */
         .modal-overlay { 
             display: none; 
-            /* [수정] 모달을 fixed로 유지하여 캡처 대상에서 제외되는 버튼들이 사라지지 않게 함 */
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0, 0, 0, 0.7); 
@@ -159,7 +139,6 @@
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 3px solid #ff69b4; 
-            /* [추가] 모달 캡처 시 배경색을 #fff로 지정 */
             box-sizing: border-box; 
         }
         .quote-header { text-align: center; border-bottom: 3px solid #d11e8a; padding-bottom: 15px; margin-bottom: 20px; }
@@ -174,12 +153,6 @@
 
         /* 모달 내부 버튼 스타일 */
         .modal-button { width: 100%; margin-top: 10px; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
-        /* [수정] 모달 내부 캡처 버튼은 이제 모달 닫기 기능만 수행 */
-        #download-quote-btn-internal { 
-            background-color: #4CAF50; 
-            color: white; 
-            box-shadow: 0 4px 0 #388E3C;
-        } 
         #modal-close-btn { background-color: #ccc; color: #333; margin-top: 15px; box-shadow: 0 4px 0 #999; }
     </style>
 </head>
@@ -269,47 +242,81 @@
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
+    /**
+     * 로컬 스토리지에서 코스 데이터와 사용자 옵션 선택 데이터를 로드합니다.
+     */
     function loadCoursesData() {
         const savedData = localStorage.getItem('daisyCoursesData');
         const savedIndex = localStorage.getItem('daisyNewCourseIndex'); 
 
+        // 1. 코스 편집 데이터 로드
         if (savedData) {
-            coursesData = JSON.parse(savedData);
+            try {
+                coursesData = JSON.parse(savedData);
+                if (!coursesData || Object.keys(coursesData).length === 0) throw new Error("Empty data");
+            } catch (e) {
+                console.error("Failed to parse courses data, loading initial.", e);
+                coursesData = INITIAL_COURSES;
+            }
         } else {
             coursesData = INITIAL_COURSES;
         }
 
+        // 2. 새 코스 인덱스 로드
         if (savedIndex) {
-            newCourseIndex = parseInt(savedIndex); 
+            newCourseIndex = parseInt(savedIndex) || 0; 
         } else {
             newCourseIndex = 0;
         }
+        
+        console.log("코스 데이터 로드 완료:", coursesData);
     }
     
+    /**
+     * 관리자 모드에서 편집된 코스 데이터를 로컬 스토리지에 저장합니다.
+     */
     function saveCoursesData() {
         localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
         localStorage.setItem('daisyNewCourseIndex', newCourseIndex); 
+        console.log("관리자 데이터 저장 완료.");
     }
 
+    /**
+     * [핵심] 현재 코스의 옵션 선택 상태를 로컬 스토리지에 저장합니다.
+     */
     function saveUserSelection() {
         if (!currentSelectedCourseKey) return;
 
-        const savedSelections = JSON.parse(localStorage.getItem('daisyUserSelections')) || {};
+        // 기존 사용자 선택 데이터를 로드
+        const savedSelectionsRaw = localStorage.getItem('daisyUserSelections');
+        let savedSelections = {};
+        try {
+            savedSelections = savedSelectionsRaw ? JSON.parse(savedSelectionsRaw) : {};
+        } catch (e) {
+            console.error("Failed to parse user selections, resetting.", e);
+        }
         
         const selectedOptions = [];
+        // 현재 화면에 체크된 체크박스의 인덱스를 수집
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((checkbox, index) => {
             if (checkbox.checked) {
                 selectedOptions.push(index);
             }
         });
 
+        // 현재 코스의 선택 상태를 업데이트
         savedSelections[currentSelectedCourseKey] = {
             selectedOptions: selectedOptions
         };
 
+        // 로컬 스토리지에 최종 저장
         localStorage.setItem('daisyUserSelections', JSON.stringify(savedSelections));
+        console.log(`✅ [${coursesData[currentSelectedCourseKey]?.title}] 옵션 상태 자동 저장됨.`);
     }
     
+    /**
+     * [수동 저장] 수동 저장 버튼을 위한 함수.
+     */
     function saveUserSelectionsManually() {
         if (!currentSelectedCourseKey) {
             alert("선택된 코스가 없습니다.");
@@ -565,14 +572,17 @@
         });
         optionsList.innerHTML = html;
         
-        const savedSelections = JSON.parse(localStorage.getItem('daisyUserSelections')) || {};
-        const currentCourseSaved = savedSelections[currentSelectedCourseKey];
-        
-        let optionsToPreCheck = [];
-
-        if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
-            optionsToPreCheck = currentCourseSaved.selectedOptions;
+        // [핵심] 저장된 사용자 선택 상태 로드 및 체크
+        const savedSelectionsRaw = localStorage.getItem('daisyUserSelections');
+        let savedSelections = {};
+        try {
+             savedSelections = savedSelectionsRaw ? JSON.parse(savedSelectionsRaw) : {};
+        } catch (e) {
+             console.error("Failed to parse user selections on render.", e);
         }
+        
+        const currentCourseSaved = savedSelections[currentSelectedCourseKey];
+        let optionsToPreCheck = currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions) ? currentCourseSaved.selectedOptions : [];
         
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((cb, index) => {
             if (optionsToPreCheck.includes(index)) {
@@ -582,10 +592,14 @@
             }
         });
         
-        updateTotalPrice();
+        updateTotalPrice(false); // 로드 시에는 저장 함수 호출 안함
     }
 
-    function updateTotalPrice() {
+    /**
+     * 총 금액 업데이트. 옵션 변경 시 자동 저장합니다.
+     * @param {boolean} [shouldSave=true] - 저장 함수 호출 여부 (기본값 true)
+     */
+    function updateTotalPrice(shouldSave = true) {
         if (!currentSelectedCourseKey) return;
 
         const course = coursesData[currentSelectedCourseKey];
@@ -598,8 +612,10 @@
 
         document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
         
-        // 옵션 변경 시 자동 저장
-        saveUserSelection(); 
+        // [핵심] 옵션 변경 시 자동 저장
+        if (shouldSave) {
+            saveUserSelection(); 
+        }
     }
 
     function showFinalQuote() {
@@ -608,6 +624,7 @@
             return;
         }
         
+        // 견적서 데이터를 최신 상태로 업데이트
         const course = coursesData[currentSelectedCourseKey];
         let totalPrice = course.basePrice;
         let selectedOptionsHtml = '';
@@ -642,12 +659,11 @@
 
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
-        // 이전에 캡처를 위해 DOM 구조를 변경한 적이 없다면 복원할 필요 없음.
     }
 
-    // --- 캡처 로직 (수정: 버튼 유지 문제 해결) ---
+    // --- 캡처 로직 (이전과 동일) ---
     
-    // 코스 목록 프레임 캡처 (이전과 거의 동일)
+    // 코스 목록 프레임 캡처
     function downloadFrameAsPNG(captureElementOrId, fileName) {
         let captureElement;
         
@@ -665,7 +681,6 @@
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
-            // 외부 제어 버튼들을 캡처 대상에서 제외
             ignoreElements: (node) => {
                 if (node.id === 'control-buttons') {
                     return true;
@@ -689,7 +704,7 @@
     }
 
     /**
-     * [핵심 수정] 견적서 모달만 캡처하고, 다른 버튼들은 DOM에서 제거하지 않아 유지되도록 수정
+     * 견적서 모달만 캡처
      */
     function downloadQuoteAsPNG(fileName) {
         if (!currentSelectedCourseKey) {
@@ -703,18 +718,18 @@
         const modalContent = document.getElementById('modal-capture-target');
 
         // 모달 내부의 닫기 버튼을 캡처에서 제외하기 위해 임시로 숨김
-        const modalButtons = document.querySelectorAll('#final-quote-modal .modal-button');
-        modalButtons.forEach(btn => btn.style.display = 'none');
+        const modalButton = document.getElementById('modal-close-btn');
+        modalButton.style.display = 'none';
         
         html2canvas(modalContent, {
             scale: 2, 
             useCORS: true,
-            backgroundColor: '#ffffff' // 모달 배경색을 확실히 흰색으로 지정
+            backgroundColor: '#ffffff'
         }).then(canvas => {
             // 캡처 후 다시 버튼 보이기
-            modalButtons.forEach(btn => btn.style.display = 'block');
+            modalButton.style.display = 'block';
             
-            // 모달은 닫지 않고, PNG 다운로드
+            // PNG 다운로드
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = fileName;
@@ -724,7 +739,7 @@
             alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
 
         }).catch(err => {
-            modalButtons.forEach(btn => btn.style.display = 'block');
+            modalButton.style.display = 'block';
             console.error("견적서 PNG 캡처 실패:", err);
             alert("❌ 견적서 PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
         });
@@ -733,6 +748,7 @@
 
     // --- 초기화 ---
     window.onload = () => {
+        // [핵심] 최초 로드 시 데이터 로드 및 목록 렌더링
         loadCoursesData();
         renderCourseList();
         document.getElementById('final-quote-modal').style.display = 'none';
