@@ -33,20 +33,16 @@
             position: relative;
         }
 
-        /* ★★★ 배경 이미지 삽입 공간 (이곳에 배경 이미지 스타일을 추가하세요) ★★★ */
+        /* ★★★ 배경 이미지 삽입 공간 ★★★ */
         #main-background {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; /* 모든 콘텐츠 아래에 배치 */
-            opacity: 0.8; /* 콘텐츠가 잘 보이도록 투명도 조절 */
-            /* 여기에 배경 이미지 스타일을 넣어주세요. 예:
-            background-image: url('your_background_image.jpg');
-            background-size: cover;
-            background-position: center;
-            */
+            z-index: 0; 
+            opacity: 0.8; 
+            /* 여기에 배경 이미지 스타일을 넣어주세요. */
         }
         /* 모든 콘텐츠가 배경 위에 보이도록 z-index 설정 */
         header, #course-list-view, #detail-view, #admin-panel {
@@ -54,27 +50,24 @@
             z-index: 1; 
         }
 
-        /* --- 2. 로고 및 헤더 스타일 (로고는 배경 공간으로 이동) --- */
+        /* --- 2. 헤더 스타일 --- */
         header { 
             text-align: center; 
             padding-bottom: 15px; 
             margin-bottom: 20px; 
             border-bottom: 2px solid #ffb6c1; 
         }
-        /* 로고 자리 (비어 있음 - 배경 영역에서 관리) */
         #logo-placeholder {
             width: 100%;
             height: 120px; 
             margin: 0 auto 10px;
             display: block;
-            /* 로고를 별도 이미지로 넣고 싶다면 여기에 <img> 태그나 CSS 배경을 사용하세요 */
         }
         h2 { color: #5B5BFF; font-size: 1.2em; margin-top: 5px; }
 
         /* --- 3. 코스 목록 (첫 화면) 스타일 --- */
-        #course-list-view { margin-bottom: 30px; }
         .course-item {
-            background-color: rgba(255, 250, 252, 0.9); /* 배경 위에서 잘 보이도록 투명도 설정 */
+            background-color: rgba(255, 250, 252, 0.9); 
             border: 1px solid #ffb6c1;
             padding: 15px;
             margin-bottom: 12px;
@@ -89,8 +82,6 @@
         .course-item.active { background-color: #ff69b4; color: white; }
         .course-title { font-weight: bold; font-size: 1.1em; color: #d11e8a; }
         .course-item.active .course-title { color: white; }
-        .course-info { text-align: right; }
-        .course-info span { display: block; font-size: 0.9em; }
         .course-price { font-size: 1.2em; font-weight: 900; color: #ff0000; margin-top: 5px; }
         .course-item.active .course-price { color: #fff; }
 
@@ -99,32 +90,15 @@
             padding: 20px; 
             border: 2px solid #5B5BFF; 
             border-radius: 10px; 
-            background-color: rgba(245, 248, 255, 0.95); /* 배경 위에서 잘 보이도록 투명도 설정 */
+            background-color: rgba(245, 248, 255, 0.95); 
             display: none; 
             flex-direction: column;
             animation: fadeIn 0.5s;
         }
         .option-item label { 
-            background-color: rgba(249, 249, 249, 0.9); /* 옵션 배경 투명도 */
+            background-color: rgba(249, 249, 249, 0.9); 
             display: block; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; 
         }
-        .option-item input[type="checkbox"]:checked + label { background-color: #e0f0ff; border-color: #5B5BFF; font-weight: bold; }
-        
-        /* 버튼 */
-        .action-btn { 
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 15px; 
-            border-radius: 8px; 
-            font-size: 1.1em; 
-            cursor: pointer; 
-            border: none;
-            transition: background-color 0.2s;
-        }
-        #quote-modal-btn { background-color: #ff69b4; color: white; }
-        #quote-modal-btn:hover { background-color: #d11e8a; }
-        #back-btn { background-color: #ccc; color: #333; }
-        #back-btn:hover { background-color: #bbb; }
         
         /* --- 5. 최종 견적 모달 (캡처용) --- */
         .modal-overlay { 
@@ -134,8 +108,28 @@
             z-index: 1000; 
             justify-content: center; align-items: center; 
         }
-        /* 나머지 모달 스타일은 이전과 동일 */
-
+        .modal-content { 
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* 캡처를 위해 max-height 및 overflow를 제거하거나 신중하게 관리 */
+        }
+        .quote-header { text-align: center; border-bottom: 3px solid #ff69b4; padding-bottom: 10px; margin-bottom: 20px;}
+        .quote-header h3 { color: #d11e8a; margin: 0; font-size: 1.8em; }
+        .quote-options h4 { color: #d11e8a; margin-top: 0; }
+        .quote-options ul { list-style: none; padding-left: 0; }
+        .quote-options li { margin-bottom: 5px; font-size: 1em; padding-left: 15px; text-indent: -15px; }
+        .final-total { 
+            text-align: center; 
+            margin-top: 30px; 
+            padding-top: 15px; 
+            border-top: 2px dashed #ff69b4;
+        }
+        .final-total .total-price { font-size: 2.5em; font-weight: 900; color: #ff0000; }
+        
         /* --- 6. 관리자/다운로드 버튼 (화면 밖 배치) --- */
         #external-controls {
             position: absolute;
@@ -148,19 +142,6 @@
         }
         #admin-mode-btn, #png-download-btn { background-color: orange; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; }
         #png-download-btn { background-color: #5B5BFF; }
-        #admin-mode-btn:hover { background-color: #ffaa00; }
-        #png-download-btn:hover { background-color: #4444ff; }
-
-        /* --- 7. 관리자 패널 스타일 --- */
-        #admin-panel { 
-            display: none; 
-            padding: 20px; 
-            border: 3px solid orange; 
-            background-color: #fff8e1; 
-            border-radius: 10px; 
-            margin-bottom: 20px;
-        }
-        /* 나머지 관리자 스타일은 이전과 동일 */
     </style>
 </head>
 <body>
@@ -187,11 +168,7 @@
 
         <div id="admin-panel">
             <h3>관리자 패널 - 가격 및 옵션 수정</h3>
-            <p>이곳에서 코스 가격과 옵션 내용을 수정하고 '저장' 버튼을 눌러주세요.</p>
-            
-            <div id="admin-inputs">
-                </div>
-            
+            <div id="admin-inputs"></div>
             <button id="save-btn" class="action-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
         </div>
 
@@ -216,7 +193,7 @@
 </div>
 
 <div id="final-quote-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" id="modal-capture-target">
         <div class="quote-header">
             <h3>DAISY 최종 견적서</h3>
         </div>
@@ -234,9 +211,6 @@
 </div>
 
 <script>
-    // **********************************************
-    // ★★★ 1. 초기 코스 데이터 (관리자 모드에서 수정 가능) ★★★
-    // **********************************************
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 100000, options: [{name: '추가 음료', price: 10000}, {name: '간단한 스낵', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -248,11 +222,9 @@
     let coursesData; 
     let currentSelectedCourseKey = null;
 
-    // --- 유틸리티 함수 ---
     const formatPrice = (price) => price.toLocaleString('ko-KR');
     const toPriceFormat = (str) => parseInt(String(str).replace(/[^0-9]/g, '')) || 0; 
 
-    // --- 데이터 로드 및 저장 ---
     function loadCoursesData() {
         const savedData = localStorage.getItem('daisyCoursesData');
         if (savedData) {
@@ -267,7 +239,6 @@
         localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
     }
 
-    // --- 뷰 전환 및 렌더링 (코드는 이전과 동일하게 작동) ---
     function renderCourseList() {
         document.getElementById('course-list-view').style.display = 'block';
         document.getElementById('detail-view').style.display = 'none';
@@ -324,6 +295,7 @@
     function showCourseList() {
         renderCourseList();
         document.getElementById('detail-view').style.display = 'none';
+        closeFinalQuoteModal(); // 혹시 모를 모달 닫기
     }
 
     // --- 최종 견적 모달 함수 ---
@@ -334,7 +306,6 @@
         let totalPrice = course.basePrice;
         let selectedOptionsHtml = '';
 
-        // 옵션 선택 시 견적 실시간 업데이트
         document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
             const price = parseInt(checkbox.dataset.price);
             totalPrice += price;
@@ -365,7 +336,7 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
 
-    // --- 관리자 모드 및 저장 함수 (이전과 동일하게 작동) ---
+    // --- 관리자 모드 및 저장 함수 ---
     function toggleAdminMode() {
         const adminPanel = document.getElementById('admin-panel');
         if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
@@ -429,29 +400,42 @@
         }
     }
 
-    // --- PNG 다운로드 기능 ---
+    // --- PNG 다운로드 기능 (수정됨) ---
     function downloadFrameAsPNG() {
-        const element = document.getElementById('phone-frame-capture'); // 캡처할 요소
+        let captureElement;
+        let fileName;
         
-        // 스크롤 위치를 맨 위로 설정 (전체 화면 캡처를 위해)
-        element.scrollTop = 0; 
+        // 1. 최종 견적 모달이 열려있는지 확인
+        if (document.getElementById('final-quote-modal').style.display === 'flex') {
+            captureElement = document.getElementById('modal-capture-target'); // 모달 내용 캡처
+            fileName = 'DAISY_최종견적서.png';
+        } else {
+            captureElement = document.getElementById('phone-frame-capture'); // 휴대폰 프레임 전체 캡처
+            fileName = 'DAISY_가격표.png';
+        }
 
         // html2canvas를 사용하여 캡처
-        html2canvas(element, {
-            scale: 2, // 고해상도 캡처를 위해 스케일 조정
-            useCORS: true, // 크로스 오리진 이미지 사용 허용 (배경 이미지가 있다면 필요)
+        html2canvas(captureElement, {
+            scale: 2, 
+            useCORS: true,
             ignoreElements: (node) => {
-                // 모달이 열려 있을 경우 모달만 캡처하도록 설정할 수도 있지만, 여기서는 프레임만 캡처합니다.
-                return node.id === 'external-controls';
+                // 모달 닫기 버튼은 캡처에서 제외
+                if (captureElement.id === 'modal-capture-target') {
+                    return node.tagName === 'BUTTON' && node.textContent.includes('닫기');
+                }
+                return false;
             }
         }).then(canvas => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
-            link.download = 'DAISY_견적_캡처.png';
+            link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert("프레임 화면이 PNG 파일로 다운로드되었습니다.");
+            alert(`${fileName} 파일이 다운로드되었습니다.`);
+        }).catch(err => {
+            console.error("PNG 캡처 실패:", err);
+            alert("PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
         });
     }
 
@@ -459,6 +443,8 @@
     window.onload = () => {
         loadCoursesData();
         renderCourseList();
+        // 초기화 시 모달을 숨김 상태로 시작
+        document.getElementById('final-quote-modal').style.display = 'none';
     };
 </script>
 
