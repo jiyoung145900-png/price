@@ -14,7 +14,6 @@
             display: flex; 
             justify-content: center; 
             background-color: #f0f2f5; 
-            /* body에 position: relative를 유지합니다. */
             position: relative; 
         }
         .phone-container {
@@ -31,24 +30,29 @@
             border-radius: 20px;
             padding: 30px 25px; 
             box-sizing: border-box;
-            position: relative; /* ★★★ 폰 프레임이 모달 오버레이의 기준점이 됩니다. ★★★ */
+            position: relative; 
         }
-        
-        /* 배경 이미지 및 z-index 유지 */
+
+        /* ★★★ 배경 이미지 삽입 공간 (경로 수정 필요 시 여기 수정) ★★★ */
         #main-background {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.8; 
+            /* ▼▼▼ 이미지 경로를 'bok.png'로 변경하거나 원하는 이미지 경로로 변경해 주세요 ▼▼▼ */
+            /* background-image: url('bok.png'); */ 
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="#fff0f5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="40" fill="#ffb6c1">DAISY BG</text></svg>');
-            background-size: cover; background-position: center; 
+            background-size: cover; 
+            background-position: center; 
         }
+        
         #course-list-view, #detail-view, #admin-view { position: relative; z-index: 1; }
 
-        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (유지) --- */
+        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 --- */
         #control-buttons {
             position: absolute; top: 30px; right: -170px; z-index: 1001; 
             display: flex; flex-direction: column; gap: 10px; width: 150px; 
         }
-        /* 버튼 스타일 생략 (이전과 동일) */
-        #toggle-admin-btn, #download-list-btn, #download-quote-btn { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; width: 100%; font-weight: bold; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: background-color 0.2s; }
+
+        /* 버튼 스타일은 유지 */
+        #toggle-admin-btn, #download-list-btn, #download-quote-btn { padding: 10px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; width: 100%; font-weight: bold; box-shadow: 0 4px 0 rgba(0,0,0,0.3); transition: background-color 0.2s; }
         #toggle-admin-btn { background-color: #5B5BFF; color: white; }
         #download-list-btn { background-color: #ff69b4; color: white; }
         #download-quote-btn { background-color: #4CAF50; color: white; box-shadow: 0 4px 0 #388E3C; display: none; }
@@ -56,49 +60,38 @@
         
         /* --- 3. 코스 목록 스타일 (생략) --- */
         #admin-view { display: none; background-color: #ffe0f7; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px dashed #d11e8a; }
+        .admin-course-item { background-color: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ffb6c1; }
+        .admin-option-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: center; }
+        
         .course-list-header { color: #d11e8a; text-align: center; font-size: 1.5em; margin-top: 150px; margin-bottom: 30px; }
         .course-item { background-color: rgba(255, 240, 245, 0.95); border: 2px solid #ffb6c1; padding: 20px; margin-bottom: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background-color 0.2s, transform 0.2s; }
         .course-item .course-title { font-size: 1.3em; font-weight: bold; color: #d11e8a; }
         .course-item .course-price { font-size: 1.2em; font-weight: 900; color: #5B5BFF; margin-left: 15px; }
 
-        /* --- 4. 상세 뷰 및 옵션 스타일 (생략) --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 (유지) --- */
         #detail-view { display: none; flex-direction: column; background-color: rgba(245, 248, 255, 0.95); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* --- 5. 상세/견적 버튼 --- */
         .action-btn { width: 100%; padding: 15px; margin-top: 25px; border-radius: 10px; font-size: 1.2em; cursor: pointer; border: none; transition: background-color 0.2s; font-weight: bold; }
         #quote-modal-btn { background-color: #ff69b4; color: white; box-shadow: 0 4px 0 #d11e8a; }
         #back-btn { background-color: #ccc; color: #333; box-shadow: 0 4px 0 #999; }
 
-        /* --- 6. 최종 견적 모달 (★수정된 부분★) --- */
+        /* --- 6. 최종 견적 모달 (유지) --- */
         .modal-overlay { 
             display: none; 
-            /* 폰 프레임 내에서 Absolute 위치 */
-            position: absolute; 
-            top: 0; left: 0; 
-            /* 폰 프레임 크기에 맞춰야 함 */
-            width: 100%; 
-            height: 100%; 
-            
-            background-color: rgba(0, 0, 0, 0.7); /* 비활성화된 느낌을 주는 배경 */
+            /* 브라우저 전체를 덮도록 position: fixed 유지 */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(0, 0, 0, 0.7); 
             z-index: 1000; 
-            justify-content: center; 
-            align-items: center; 
-            
-            /* 폰 프레임의 패딩(30px)을 고려하여 꽉 차도록 padding: 0 */
-            padding: 0;
-            margin: 0;
-            border-radius: 20px; /* 폰 프레임과 동일한 둥근 모서리 */
+            justify-content: center; align-items: center; 
         }
         .modal-content { 
-            background-color: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            width: 90%; 
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 3px solid #ff69b4; 
+            background-color: white; padding: 30px; border-radius: 12px; 
+            width: 90%; max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid #ff69b4; 
         }
-        /* 나머지 모달 스타일은 유지 */
-        .quote-header { text-align: center; border-bottom: 3px solid #d11e8a; padding-bottom: 15px; margin-bottom: 20px;}
         .final-total .total-price { font-size: 3.5em; font-weight: 900; color: #ff0000; }
+        #modal-close-btn { background-color: #ccc; color: #333; box-shadow: 0 4px 0 #999; }
     </style>
 </head>
 <body>
@@ -118,7 +111,7 @@
             <div id="admin-view">
                 <h3>🔑 코스 및 옵션 편집 모드</h3>
                 <div id="admin-course-editor">
-                    </div>
+                </div>
                 <button class="admin-button-group" style="background-color:#5B5BFF; color:white;" onclick="addNewCourse()">➕ 새 코스 추가</button>
                 <button class="admin-button-group" style="background-color:#4CAF50; color:white;" onclick="saveAdminChanges()">💾 모든 변경 사항 저장</button>
             </div>
@@ -140,24 +133,6 @@
                 <button id="quote-modal-btn" class="action-btn" onclick="showFinalQuote()">💸 최종 견적서 보기</button>
                 <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
             </div>
-            
-            <div id="final-quote-modal" class="modal-overlay">
-                <div class="modal-content" id="modal-capture-target">
-                    <div class="quote-header">
-                        <h3>DAISY 최종 견적서</h3>
-                    </div>
-                    
-                    <div id="quote-details-content">
-                        </div>
-                    
-                    <div class="final-total">
-                        <p>총 합계 금액</p>
-                        <div class="total-price">₩ <span id="modal-total-price">0</span></div>
-                    </div>
-                    
-                    <button id="modal-close-btn" onclick="closeFinalQuoteModal()">닫기</button>
-                </div>
-            </div>
         </div>
         
         <div id="control-buttons">
@@ -167,11 +142,26 @@
         </div>
     </div>
     
+    <div id="final-quote-modal" class="modal-overlay">
+        <div class="modal-content" id="modal-capture-target">
+            <div class="quote-header">
+                <h3>DAISY 최종 견적서</h3>
+            </div>
+            
+            <div id="quote-details-content">
+            </div>
+            
+            <div class="final-total">
+                <p>총 합계 금액</p>
+                <div class="total-price">₩ <span id="modal-total-price">0</span></div>
+            </div>
+            
+            <button id="modal-close-btn" onclick="closeFinalQuoteModal()">닫기</button>
+        </div>
+    </div>
+
     <script>
-        // 이전에 제공된 전체 JavaScript 코드를 여기에 다시 삽입합니다.
-        // (데이터, 렌더링, 이벤트 핸들러 등 모든 함수가 포함되어야 합니다.)
-        // 중요한 함수: captureQuoteScreen()만 아래에 다시 작성합니다.
-        
+        // --- 데이터 및 유틸리티 (생략) ---
         const INITIAL_COURSES = {
             'sapphire': { title: '사파이어', time: '1시간', basePrice: 50000, options: [{name: '로리플', price: 20000}, {name: '애널', price: 15000}, {name: '코스추가1', price: 10000}, {name: '코스추가2', price: 5000}] },
             'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -212,14 +202,12 @@
                 }
             });
 
-            savedSelections[currentSelectedCourseKey] = {
-                selectedOptions: selectedOptions
-            };
+            savedSelections[currentSelectedCourseKey] = { selectedOptions: selectedOptions };
 
             localStorage.setItem('daisyUserSelections', JSON.stringify(savedSelections));
         }
 
-
+        // --- 뷰 전환 및 렌더링 (사용자 모드) ---
         function renderCourseList() {
             document.getElementById('course-list-view').style.display = 'block';
             document.getElementById('detail-view').style.display = 'none';
@@ -256,10 +244,9 @@
             closeFinalQuoteModal();
         }
 
-
+        // --- 관리자 편집 모드 함수 (생략) ---
         function toggleAdminMode() {
             isEditingMode = !isEditingMode;
-            
             if (isEditingMode) {
                 document.getElementById('course-list-view').style.display = 'none';
                 document.getElementById('detail-view').style.display = 'none';
@@ -273,114 +260,48 @@
                 renderCourseList();
             }
         }
-
         function renderAdminEditor() {
             const editorContainer = document.getElementById('admin-course-editor');
             let html = '';
-            
             for (const key in coursesData) {
                 const course = coursesData[key];
-                
-                html += `
-                    <div class="admin-course-item" data-key="${key}">
-                        <h4>${course.title} 코스 (${key})</h4>
-                        <label>코스 이름:</label>
-                        <input type="text" data-field="title" value="${course.title}">
-                        
-                        <label>시간:</label>
-                        <input type="text" data-field="time" value="${course.time}">
-                        
-                        <label>기본 금액:</label>
-                        <input type="number" data-field="basePrice" value="${course.basePrice}" class="price-input">
-                        <hr style="border-top:1px dashed #eee; margin:10px 0;">
-
-                        <h5>세부 옵션</h5>
-                        <div class="admin-options-container" id="options-${key}">
-                `;
-                
-                course.options.forEach((opt, index) => {
-                    html += renderAdminOptionItem(key, index, opt.name, opt.price);
-                });
-                
-                html += `
-                        </div>
-                        <button style="background-color:#4CAF50; color:white; width:100%;" onclick="addOptionToCourse('${key}')">➕ 옵션 추가</button>
-                        <button style="background-color:#F44336; color:white; margin-top:10px;" onclick="deleteCourse('${key}')">❌ 코스 삭제</button>
-                    </div>
-                `;
+                html += `<div class="admin-course-item" data-key="${key}"><h4>${course.title} 코스 (${key})</h4><label>코스 이름:</label><input type="text" data-field="title" value="${course.title}"><label>시간:</label><input type="text" data-field="time" value="${course.time}"><label>기본 금액:</label><input type="number" data-field="basePrice" value="${course.basePrice}" class="price-input"><hr style="border-top:1px dashed #eee; margin:10px 0;"><h5>세부 옵션</h5><div class="admin-options-container" id="options-${key}">`;
+                course.options.forEach((opt, index) => { html += renderAdminOptionItem(key, index, opt.name, opt.price); });
+                html += `</div><button style="background-color:#4CAF50; color:white; width:100%;" onclick="addOptionToCourse('${key}')">➕ 옵션 추가</button><button style="background-color:#F44336; color:white; margin-top:10px;" onclick="deleteCourse('${key}')">❌ 코스 삭제</button></div>`;
             }
             editorContainer.innerHTML = html;
             document.getElementById('phone-frame-capture').scrollTop = 0;
         }
-
         function renderAdminOptionItem(courseKey, index, name, price) {
-            return `
-                <div class="admin-option-item" data-index="${index}">
-                    <input type="text" value="${name}" data-opt-field="name" placeholder="옵션 이름">
-                    <input type="number" value="${price}" data-opt-field="price" placeholder="가격" class="price-input">
-                    <button style="background-color:#F44336; color:white;" onclick="deleteOptionFromCourse('${courseKey}', ${index})">삭제</button>
-                </div>
-            `;
+            return `<div class="admin-option-item" data-index="${index}"><input type="text" value="${name}" data-opt-field="name" placeholder="옵션 이름"><input type="number" value="${price}" data-opt-field="price" placeholder="가격" class="price-input"><button style="background-color:#F44336; color:white;" onclick="deleteOptionFromCourse('${courseKey}', ${index})">삭제</button></div>`;
         }
-
         function addOptionToCourse(courseKey) {
-            if (!coursesData[courseKey].options) {
-                coursesData[courseKey].options = [];
-            }
-            coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
-            renderAdminEditor();
+            if (!coursesData[courseKey].options) { coursesData[courseKey].options = []; }
+            coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); renderAdminEditor();
         }
-        
         function deleteOptionFromCourse(courseKey, index) {
-            if (coursesData[courseKey].options.length === 1) {
-                alert("최소한 하나의 옵션은 남겨야 합니다.");
-                return;
-            }
-            coursesData[courseKey].options.splice(index, 1);
-            renderAdminEditor();
+            if (coursesData[courseKey].options.length === 1) { alert("최소한 하나의 옵션은 남겨야 합니다."); return; }
+            coursesData[courseKey].options.splice(index, 1); renderAdminEditor();
         }
-
         function addNewCourse() {
-            const keyPrefix = 'custom';
-            let newKey = keyPrefix + newCourseIndex;
-            while(coursesData.hasOwnProperty(newKey)) {
-                newCourseIndex++;
-                newKey = keyPrefix + newCourseIndex;
-            }
-            
-            coursesData[newKey] = {
-                title: '새로운 코스', 
-                time: '0시간', 
-                basePrice: 0, 
-                options: [{name: '기본 옵션', price: 0}]
-            };
-            newCourseIndex++;
-            renderAdminEditor();
+            const keyPrefix = 'custom'; let newKey = keyPrefix + newCourseIndex;
+            while(coursesData.hasOwnProperty(newKey)) { newCourseIndex++; newKey = keyPrefix + newCourseIndex; }
+            coursesData[newKey] = { title: '새로운 코스', time: '0시간', basePrice: 0, options: [{name: '기본 옵션', price: 0}] };
+            newCourseIndex++; renderAdminEditor();
         }
-        
         function deleteCourse(courseKey) {
-            if (Object.keys(coursesData).length === 1) {
-                alert("최소한 하나의 코스는 남겨야 합니다.");
-                return;
-            }
-            if (confirm(`정말로 코스 [${coursesData[courseKey].title}]을 삭제하시겠습니까?`)) {
-                delete coursesData[courseKey];
-                renderAdminEditor();
-            }
+            if (Object.keys(coursesData).length === 1) { alert("최소한 하나의 코스는 남겨야 합니다."); return; }
+            if (confirm(`정말로 코스 [${coursesData[courseKey].title}]을 삭제하시겠습니까?`)) { delete coursesData[courseKey]; renderAdminEditor(); }
         }
-
         function saveAdminChanges() {
             const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
             const newCoursesData = {};
-
             editorItems.forEach(item => {
                 const oldKey = item.dataset.key;
-                
                 const title = item.querySelector('input[data-field="title"]').value;
                 const time = item.querySelector('input[data-field="time"]').value;
                 const basePriceInput = item.querySelector('input[data-field="basePrice"]');
                 const basePrice = parseInt(basePriceInput.value) || 0;
-                
                 const newOptions = [];
                 item.querySelectorAll('.admin-option-item').forEach(optionItem => {
                     const name = optionItem.querySelector('input[data-opt-field="name"]').value;
@@ -388,174 +309,133 @@
                     const price = parseInt(priceInput.value) || 0;
                     newOptions.push({name: name, price: price});
                 });
-
-                newCoursesData[oldKey] = {
-                    title: title,
-                    time: time,
-                    basePrice: basePrice,
-                    options: newOptions
-                };
+                newCoursesData[oldKey] = { title: title, time: time, basePrice: basePrice, options: newOptions };
             });
-
-            coursesData = newCoursesData;
-            saveCoursesData(); 
-            alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
-            toggleAdminMode();
+            coursesData = newCoursesData; saveCoursesData(); 
+            alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다."); toggleAdminMode();
         }
 
+        // --- 사용자 상호작용 함수 (생략) ---
         function selectCourse(key) {
             currentSelectedCourseKey = key;
             const course = coursesData[key];
-            
             document.getElementById('course-list-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'none';
             document.getElementById('detail-view').style.display = 'flex';
-            
             document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
             document.getElementById('detail-time-selected').textContent = course.time;
             document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
-            
             renderOptions(course.options);
-            
             document.getElementById('phone-frame-capture').scrollTop = 0;
         }
-
         function renderOptions(options) {
             const optionsList = document.getElementById('options-list');
             let html = '<h3>선택 옵션 추가 (복수 선택 가능)</h3>';
-            
             options.forEach((opt, index) => {
-                html += `
-                    <div class="option-item">
-                        <input type="checkbox" id="opt-${index}" data-price="${opt.price}" onchange="updateTotalPrice()"> 
-                        <label for="opt-${index}">
-                            ${opt.name} (<span style="color:red;">+${formatPrice(opt.price)}원</span>)
-                        </label>
-                    </div>
-                `;
+                html += `<div class="option-item"><input type="checkbox" id="opt-${index}" data-price="${opt.price}" onchange="updateTotalPrice()"> <label for="opt-${index}">${opt.name} (<span style="color:red;">+${formatPrice(opt.price)}원</span>)</label></div>`;
             });
             optionsList.innerHTML = html;
-            
             const savedSelections = JSON.parse(localStorage.getItem('daisyUserSelections')) || {};
             const currentCourseSaved = savedSelections[currentSelectedCourseKey];
-            
             let optionsToPreCheck = [];
-
-            if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
-                optionsToPreCheck = currentCourseSaved.selectedOptions;
-            } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') {
-                optionsToPreCheck = [1]; 
-            }
-            
+            if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) { optionsToPreCheck = currentCourseSaved.selectedOptions; } 
+            else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') { optionsToPreCheck = [1]; }
             document.querySelectorAll('#options-list input[type="checkbox"]').forEach((cb, index) => {
-                if (optionsToPreCheck.includes(index)) {
-                    cb.checked = true;
-                } else {
-                    cb.checked = false;
-                }
+                if (optionsToPreCheck.includes(index)) { cb.checked = true; } else { cb.checked = false; }
             });
-            
             updateTotalPrice();
         }
-
         function updateTotalPrice() {
             if (!currentSelectedCourseKey) return;
-
             const course = coursesData[currentSelectedCourseKey];
             let totalPrice = course.basePrice;
-
             document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
-                const price = parseInt(checkbox.dataset.price);
-                totalPrice += price;
+                totalPrice += parseInt(checkbox.dataset.price);
             });
-
             document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
-            
             saveUserSelection(); 
         }
-
         function showFinalQuote() {
             if (!currentSelectedCourseKey) return;
-            
             const course = coursesData[currentSelectedCourseKey];
             let totalPrice = course.basePrice;
             let selectedOptionsHtml = '';
-
             document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
                 const price = parseInt(checkbox.dataset.price);
                 totalPrice += price;
                 const optionLabel = checkbox.nextElementSibling.textContent.trim();
                 const optionName = optionLabel.substring(0, optionLabel.lastIndexOf('(')).trim();
-
                 selectedOptionsHtml += `<li>• ${optionName} (₩ ${formatPrice(price)})</li>`;
             });
-
-            const detailContent = `
-                <div class="quote-details">
-                    <p><strong>선택 코스:</strong> ${course.title} 코스</p>
-                    <p><strong>진행 시간:</strong> ${course.time}</p>
-                    <p><strong>기본 금액:</strong> ₩ ${formatPrice(course.basePrice)}</p>
-                </div>
-                <div class="quote-options">
-                    <h4>추가 선택 옵션</h4>
-                    <ul>
-                        ${selectedOptionsHtml || '<li>선택된 옵션 없음</li>'}
-                    </ul>
-                </div>
-            `;
-
+            const detailContent = `<div class="quote-details"><p><strong>선택 코스:</strong> ${course.title} 코스</p><p><strong>진행 시간:</strong> ${course.time}</p><p><strong>기본 금액:</strong> ₩ ${formatPrice(course.basePrice)}</p></div><div class="quote-options"><h4>추가 선택 옵션</h4><ul>${selectedOptionsHtml || '<li>선택된 옵션 없음</li>'}</ul></div>`;
             document.getElementById('quote-details-content').innerHTML = detailContent;
             document.getElementById('modal-total-price').textContent = formatPrice(totalPrice);
             document.getElementById('final-quote-modal').style.display = 'flex';
-            
             document.getElementById('download-quote-btn').style.display = 'block';
             document.getElementById('download-list-btn').style.display = 'none';
         }
 
         function closeFinalQuoteModal() {
             document.getElementById('final-quote-modal').style.display = 'none';
-            
             document.getElementById('download-list-btn').style.display = 'block';
             document.getElementById('download-quote-btn').style.display = 'none';
         }
 
-
-        // ★★★ 수정된 견적서 폰 프레임 캡처 함수 ★★★
+        // ★★★ 최종 수정된 견적서 폰 프레임 캡처 함수 (Clip 방식) ★★★
         function captureQuoteScreen() {
-            // 1. 캡처 직전에 모달 내의 '닫기' 버튼 숨기기
             const closeButton = document.getElementById('modal-close-btn');
             closeButton.style.display = 'none';
 
-            // 2. 캡처 대상: phone-frame-capture (폰 프레임만)
-            const captureElement = document.getElementById('phone-frame-capture');
-            const fileName = 'DAISY_견적서_캡처.png';
+            // 1. 캡처 대상은 document.body (모달 오버레이를 포함해야 하므로)
+            const captureElement = document.body;
+            const frameElement = document.getElementById('phone-frame-capture');
 
-            // html2canvas 실행
+            // 2. 폰 프레임의 화면상 위치와 크기 계산
+            const rect = frameElement.getBoundingClientRect();
+
+            // 3. html2canvas 실행: body 전체를 캡처
             html2canvas(captureElement, {
                 scale: 2, 
                 useCORS: true,
                 ignoreElements: (node) => {
-                    // 외부 제어 버튼(편집/다운로드)은 캡처 시 항상 제외
-                    if (node.id === 'control-buttons') {
+                    if (node.id === 'control-buttons' || node.id === 'modal-close-btn') {
                         return true;
                     }
                     return false;
                 }
             }).then(canvas => {
-                // 3. 캡처 완료 후 '닫기' 버튼 다시 표시
+                // 4. Canvas에서 폰 프레임 영역만 잘라냄 (Crop)
+                const targetWidth = rect.width * 2;
+                const targetHeight = rect.height * 2;
+                const targetX = rect.left * 2; 
+                const targetY = rect.top * 2;
+
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = targetWidth;
+                finalCanvas.height = targetHeight;
+                const context = finalCanvas.getContext('2d');
+
+                // 폰 프레임 위치에서 폰 프레임 크기만큼 그리기
+                context.drawImage(
+                    canvas, 
+                    targetX, targetY,           // 원본 이미지에서 시작 X, Y
+                    targetWidth, targetHeight,  // 원본 이미지에서 잘라낼 폭, 높이
+                    0, 0,                       // 최종 이미지에 시작 X, Y
+                    targetWidth, targetHeight   // 최종 이미지에 그릴 폭, 높이
+                );
+
+                // 5. 다운로드
                 closeButton.style.display = 'block';
 
                 const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = fileName;
+                link.href = finalCanvas.toDataURL('image/png');
+                link.download = 'DAISY_견적서_캡처.png';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
+                alert(`✅ 견적서 캡처 파일이 다운로드되었습니다.`);
             }).catch(err => {
-                // 3. 에러 발생 시에도 '닫기' 버튼 다시 표시
                 closeButton.style.display = 'block';
-
                 console.error("PNG 캡처 실패:", err);
                 alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
             });
@@ -584,12 +464,11 @@
                 scale: 2, 
                 useCORS: true,
                 ignoreElements: (node) => {
-                    // 제어 버튼(편집/다운로드)은 캡처 시 항상 제외
                     if (node.id === 'control-buttons') {
                         return true;
                     }
-                    // 폰 프레임 캡처 시 (목록 캡처), 액션 버튼 및 모달을 제외
-                    if (captureElement.id === 'phone-frame-capture' && (node.classList.contains('action-btn') || node.id === 'final-quote-modal')) {
+                    // 폰 프레임 캡처 시 (목록 캡처), 액션 버튼을 제외
+                    if (captureElement.id === 'phone-frame-capture' && (node.classList.contains('action-btn'))) {
                         return true;
                     }
                     return false;
