@@ -17,27 +17,8 @@
             position: relative; 
         }
         
-        /* [핵심 수정: 캡처 시 전체 화면을 감싸는 래퍼 스타일] */
-        .body-capture-wrapper {
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
-            overflow: hidden; 
-            background-color: #f0f2f5; 
-            z-index: 1002; 
-        }
-        .body-capture-wrapper .phone-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        /* 캡처 시에는 제어 버튼 숨김 */
-        .body-capture-wrapper #control-buttons {
-            display: none !important;
-        }
-
+        /* [핵심 수정: 캡처 시 전체 화면 래퍼 제거 - 버튼 유지] 
+         * 이제 견적서 캡처는 모달만 고정하여 캡처하고, DOM 구조를 건드리지 않습니다. */
 
         .phone-container {
             position: relative; 
@@ -79,7 +60,7 @@
         #control-buttons {
             position: absolute; 
             top: 30px; 
-            right: -170px; /* 프레임 밖으로 이동 */
+            right: -170px; 
             z-index: 1001; 
             display: flex;
             flex-direction: column; 
@@ -110,12 +91,17 @@
             color: white;
         }
         #show-quote-btn {
-            background-color: #9c27b0; /* 보라색 (새 버튼) */
+            background-color: #9c27b0; /* 보라색 (견적서 보기) */
             color: white;
         }
         #save-options-btn {
-            background-color: #00bcd4; /* 청록색 (새 버튼) */
+            background-color: #00bcd4; /* 청록색 (옵션 저장) */
             color: white;
+        }
+        /* [추가] 견적서 캡처 버튼 스타일 */
+        #download-quote-btn-external {
+            background-color: #4CAF50; /* 녹색 */
+            color: white; 
         }
 
         /* 편집 모드일 때의 버튼 색상 */
@@ -128,169 +114,39 @@
             display: none; 
         }
         
-        /* --- 3. 코스 목록 스타일 --- */
-        #admin-view {
-            display: none; 
-            background-color: #ffe0f7;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-            border: 2px dashed #d11e8a;
-        }
-        
-        .admin-course-item {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ffb6c1;
-        }
-        .admin-course-item input, .admin-course-item button, .admin-option-item input {
-            width: calc(100% - 10px);
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
+        /* --- 3. 코스 목록 및 관리자 스타일 (생략) --- */
+        #admin-view { display: none; background-color: #ffe0f7; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px dashed #d11e8a; }
+        .admin-course-item { background-color: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ffb6c1; }
+        .admin-course-item input, .admin-course-item button, .admin-option-item input { width: calc(100% - 10px); padding: 8px; margin-top: 5px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .admin-course-item .price-input { width: calc(50% - 15px); float: right; margin-left: 10px; }
         .admin-course-item .name-input { width: calc(50% - 15px); }
-
-        .admin-option-item {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 5px;
-            align-items: center;
-        }
-        .admin-option-item input {
-            width: 35%;
-            margin: 0;
-        }
-        .admin-option-item button {
-            width: 25%;
-            padding: 8px 5px;
-            margin: 0;
-            font-size: 0.8em;
-        }
-
-        .admin-button-group button {
-            width: 100%;
-            margin-top: 10px;
-        }
+        .admin-option-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: center; }
+        .admin-option-item input { width: 35%; margin: 0; }
+        .admin-option-item button { width: 25%; padding: 8px 5px; margin: 0; font-size: 0.8em; }
+        .admin-button-group button { width: 100%; margin-top: 10px; }
         
-        .course-list-header {
-            color: #d11e8a; 
-            text-align: center; 
-            font-size: 1.5em;
-            margin-top: 150px; 
-            margin-bottom: 30px; 
-        }
-        .course-item {
-            background-color: rgba(255, 240, 245, 0.95); 
-            border: 2px solid #ffb6c1;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-        .course-item .course-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #d11e8a;
-        }
-        .course-item .course-price {
-            font-size: 1.2em;
-            font-weight: 900;
-            color: #5B5BFF;
-            margin-left: 15px;
-        }
+        .course-list-header { color: #d11e8a; text-align: center; font-size: 1.5em; margin-top: 150px; margin-bottom: 30px; }
+        .course-item { background-color: rgba(255, 240, 245, 0.95); border: 2px solid #ffb6c1; padding: 20px; margin-bottom: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background-color 0.2s, transform 0.2s; }
+        .course-item .course-title { font-size: 1.3em; font-weight: bold; color: #d11e8a; }
+        .course-item .course-price { font-size: 1.2em; font-weight: 900; color: #5B5BFF; margin-left: 15px; }
         
-        /* --- 4. 상세 뷰 및 옵션 스타일 --- */
-        #detail-view { 
-            display: none; 
-            flex-direction: column;
-            background-color: rgba(245, 248, 255, 0.95); 
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        #detail-view h3 {
-            color: #d11e8a;
-            font-size: 1.6em;
-            margin-bottom: 10px;
-        }
-        #detail-view p {
-            font-size: 1.1em;
-            color: #333;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        #options-list h3 {
-            color: #5B5BFF;
-            font-size: 1.3em;
-            margin-top: 20px;
-            margin-bottom: 15px;
-            border-left: 5px solid #ff69b4;
-            padding-left: 10px;
-        }
-        .option-item input[type="checkbox"] {
-            transform: scale(1.3);
-            margin-right: 15px;
-            accent-color: #ff69b4; 
-        }
+        /* --- 4. 상세 뷰 및 옵션 스타일 (생략) --- */
+        #detail-view { display: none; flex-direction: column; background-color: rgba(245, 248, 255, 0.95); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #detail-view h3 { color: #d11e8a; font-size: 1.6em; margin-bottom: 10px; }
+        #detail-view p { font-size: 1.1em; color: #333; border-bottom: 1px dashed #ccc; padding-bottom: 15px; margin-bottom: 20px; }
+        #options-list h3 { color: #5B5BFF; font-size: 1.3em; margin-top: 20px; margin-bottom: 15px; border-left: 5px solid #ff69b4; padding-left: 10px; }
+        .option-item input[type="checkbox"] { transform: scale(1.3); margin-right: 15px; accent-color: #ff69b4; }
+        #total-display { background-color: #f7f7f7; padding: 15px 20px; margin-top: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; }
+        #current-total-price { font-size: 1.8em; font-weight: 900; color: #ff0000; }
+        .action-btn { width: 100%; padding: 15px; margin-top: 25px; border-radius: 10px; font-size: 1.2em; cursor: pointer; border: none; transition: background-color 0.2s; font-weight: bold; }
+        #back-btn { background-color: #ccc; color: #333; box-shadow: 0 4px 0 #999; }
 
-        /* 합계 금액 필드 */
-        #total-display {
-            background-color: #f7f7f7;
-            padding: 15px 20px;
-            margin-top: 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #ddd;
-        }
-        #current-total-price {
-            font-size: 1.8em;
-            font-weight: 900;
-            color: #ff0000;
-        }
-
-        /* --- 5. 상세/견적 버튼 --- */
-        .action-btn { 
-            width: 100%; 
-            padding: 15px; 
-            margin-top: 25px; 
-            border-radius: 10px; 
-            font-size: 1.2em; 
-            cursor: pointer; 
-            border: none;
-            transition: background-color 0.2s;
-            font-weight: bold;
-        }
-        /* 견적서 버튼은 외부로 이동했으므로 제거
-        #quote-modal-btn { 
-            background-color: #ff69b4; 
-            color: white; 
-            box-shadow: 0 4px 0 #d11e8a;
-        }
-        */
-        #back-btn { 
-            background-color: #ccc; 
-            color: #333;
-            box-shadow: 0 4px 0 #999;
-        }
-
-        /* --- 6. 최종 견적 모달 --- */
+        /* --- 5. 최종 견적 모달 --- */
         .modal-overlay { 
             display: none; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            /* [수정] 모달을 fixed로 유지하여 캡처 대상에서 제외되는 버튼들이 사라지지 않게 함 */
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
             background-color: rgba(0, 0, 0, 0.7); 
             z-index: 1000; 
             justify-content: center; align-items: center; 
@@ -303,80 +159,28 @@
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 3px solid #ff69b4; 
+            /* [추가] 모달 캡처 시 배경색을 #fff로 지정 */
+            box-sizing: border-box; 
         }
-        .quote-header { 
-            text-align: center; 
-            border-bottom: 3px solid #d11e8a; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px;
-        }
+        .quote-header { text-align: center; border-bottom: 3px solid #d11e8a; padding-bottom: 15px; margin-bottom: 20px; }
         .quote-header h3 { color: #d11e8a; font-size: 1.8em;}
-        
-        .quote-options { 
-            padding: 10px 0; 
-            border-top: 1px dashed #ffb6c1; 
-            border-bottom: 1px dashed #ffb6c1; 
-            margin-bottom: 20px;
-        }
-        .quote-options h4 {
-            color: #5B5BFF;
-            font-weight: bold;
-            margin-top: 5px;
-            margin-bottom: 8px;
-        }
-        .quote-options ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .quote-options li {
-            list-style-type: none; 
-            position: relative;
-            padding-left: 20px;
-        }
-        .quote-options li::before {
-            content: "🌸"; 
-            position: absolute;
-            left: 0;
-            font-size: 0.8em;
-        }
+        .quote-options { padding: 10px 0; border-top: 1px dashed #ffb6c1; border-bottom: 1px dashed #ffb6c1; margin-bottom: 20px; }
+        .quote-options h4 { color: #5B5BFF; font-weight: bold; margin-top: 5px; margin-bottom: 8px; }
+        .quote-options ul { list-style: none; padding-left: 0; }
+        .quote-options li { list-style-type: none; position: relative; padding-left: 20px; }
+        .quote-options li::before { content: "🌸"; position: absolute; left: 0; font-size: 0.8em; }
+        .final-total { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 2px solid #d11e8a; }
+        .final-total .total-price { font-size: 3.5em; font-weight: 900; color: #ff0000; }
 
-        /* 최종 합계 금액 강조 */
-        .final-total {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 2px solid #d11e8a; 
-        }
-        .final-total .total-price { 
-            font-size: 3.5em; 
-            font-weight: 900; 
-            color: #ff0000; 
-        }
-
-        /* 모달 버튼 스타일 */
-        .modal-button {
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        /* 추가: 견적서 캡처 버튼 스타일 */
-        #download-quote-btn {
+        /* 모달 내부 버튼 스타일 */
+        .modal-button { width: 100%; margin-top: 10px; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
+        /* [수정] 모달 내부 캡처 버튼은 이제 모달 닫기 기능만 수행 */
+        #download-quote-btn-internal { 
             background-color: #4CAF50; 
             color: white; 
             box-shadow: 0 4px 0 #388E3C;
-        }
-
-        #modal-close-btn { 
-            background-color: #ccc; 
-            color: #333; 
-            margin-top: 15px;
-            box-shadow: 0 4px 0 #999;
-        }
+        } 
+        #modal-close-btn { background-color: #ccc; color: #333; margin-top: 15px; box-shadow: 0 4px 0 #999; }
     </style>
 </head>
 <body>
@@ -423,7 +227,9 @@
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
         <button id="download-list-btn" onclick="downloadFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">🖼️ PNG 다운로드</button>
+        
         <button id="show-quote-btn" class="detail-only" onclick="showFinalQuote()">💸 견적서 보기</button>
+        <button id="download-quote-btn-external" class="detail-only" onclick="downloadQuoteAsPNG('DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
         <button id="save-options-btn" class="detail-only" onclick="saveUserSelectionsManually()">💾 현재 옵션 저장</button>
     </div>
 </div>
@@ -442,7 +248,6 @@
             <div class="total-price">₩ <span id="modal-total-price">0</span></div>
         </div>
         
-        <button id="download-quote-btn" class="modal-button" onclick="prepareQuoteCaptureAndDownload('DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
         <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
@@ -461,7 +266,6 @@
     let currentSelectedCourseKey = null;
     let isEditingMode = false;
     let newCourseIndex = 0; 
-    let originalBodyChildren = []; 
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
@@ -487,11 +291,6 @@
         localStorage.setItem('daisyNewCourseIndex', newCourseIndex); 
     }
 
-    /**
-     * [수정 및 자동 저장 핵심]
-     * 현재 선택된 코스의 옵션 상태를 로컬 스토리지에 저장합니다.
-     * 이 함수는 옵션 선택이 변경될 때마다 (updateTotalPrice에서) 호출됩니다.
-     */
     function saveUserSelection() {
         if (!currentSelectedCourseKey) return;
 
@@ -511,13 +310,12 @@
         localStorage.setItem('daisyUserSelections', JSON.stringify(savedSelections));
     }
     
-    // [추가] 수동 저장 버튼을 위한 함수
     function saveUserSelectionsManually() {
         if (!currentSelectedCourseKey) {
             alert("선택된 코스가 없습니다.");
             return;
         }
-        saveUserSelection(); // 자동 저장 로직과 동일
+        saveUserSelection(); 
         alert(`✅ [${coursesData[currentSelectedCourseKey].title} 코스] 옵션 설정이 수동으로 저장되었습니다.`);
     }
 
@@ -531,8 +329,9 @@
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
         document.getElementById('download-list-btn').style.display = 'block'; 
         
-        // [수정] 견적서/저장 버튼 숨김
+        // 상세 페이지 전용 버튼 숨김
         document.getElementById('show-quote-btn').classList.add('detail-only');
+        document.getElementById('download-quote-btn-external').classList.add('detail-only');
         document.getElementById('save-options-btn').classList.add('detail-only');
 
 
@@ -563,7 +362,7 @@
     }
 
 
-    // --- 관리자 편집 모드 함수 (이전과 동일) ---
+    // --- 관리자 편집 모드 함수 (생략) ---
     function toggleAdminMode() {
         isEditingMode = !isEditingMode;
         
@@ -575,8 +374,9 @@
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
             document.getElementById('download-list-btn').style.display = 'none'; 
             
-            // [수정] 견적서/저장 버튼 숨김
+            // 상세 페이지 전용 버튼 숨김
             document.getElementById('show-quote-btn').classList.add('detail-only');
+            document.getElementById('download-quote-btn-external').classList.add('detail-only');
             document.getElementById('save-options-btn').classList.add('detail-only');
 
             renderAdminEditor();
@@ -739,8 +539,9 @@
         document.getElementById('detail-time-selected').textContent = course.time;
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
         
-        // [수정] 견적서/저장 버튼 노출
+        // 상세 페이지 전용 버튼 노출
         document.getElementById('show-quote-btn').classList.remove('detail-only');
+        document.getElementById('download-quote-btn-external').classList.remove('detail-only');
         document.getElementById('save-options-btn').classList.remove('detail-only');
         
         renderOptions(course.options);
@@ -771,9 +572,6 @@
 
         if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
             optionsToPreCheck = currentCourseSaved.selectedOptions;
-        } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') {
-            // 초기값 설정 (필요 시 수정)
-            // optionsToPreCheck = [1]; 
         }
         
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((cb, index) => {
@@ -787,9 +585,6 @@
         updateTotalPrice();
     }
 
-    /**
-     * [수정] 총 금액 업데이트 후 옵션 선택 상태를 자동 저장합니다.
-     */
     function updateTotalPrice() {
         if (!currentSelectedCourseKey) return;
 
@@ -803,7 +598,7 @@
 
         document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
         
-        // [핵심 수정] 옵션 변경 시 자동 저장
+        // 옵션 변경 시 자동 저장
         saveUserSelection(); 
     }
 
@@ -845,107 +640,81 @@
         document.getElementById('final-quote-modal').style.display = 'flex';
     }
 
-    // --- 캡처 로직 (이전과 동일) ---
-    function prepareQuoteCaptureAndDownload(fileName) {
-        const phoneContainer = document.querySelector('.phone-container');
-        const modal = document.getElementById('final-quote-modal');
-        const controlButtons = document.getElementById('control-buttons');
-        
-        originalBodyChildren = Array.from(document.body.children);
-        
-        modal.style.zIndex = '1003';
-        
-        document.body.innerHTML = '';
-        
-        const captureWrapper = document.createElement('div');
-        captureWrapper.id = 'body-capture-wrapper';
-        captureWrapper.classList.add('body-capture-wrapper');
-
-        captureWrapper.appendChild(phoneContainer);
-        captureWrapper.appendChild(modal);
-
-        document.body.appendChild(captureWrapper);
-
-        downloadFrameAsPNG(captureWrapper, fileName, true);
-    }
-    
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
-        restoreBodyFromCapture();
+        // 이전에 캡처를 위해 DOM 구조를 변경한 적이 없다면 복원할 필요 없음.
     }
+
+    // --- 캡처 로직 (수정: 버튼 유지 문제 해결) ---
     
-    function restoreBodyFromCapture() {
-        const captureWrapper = document.getElementById('body-capture-wrapper');
-        
-        if (captureWrapper) {
-            const modal = document.getElementById('final-quote-modal');
-            const phoneContainer = document.querySelector('.phone-container');
-            const controlButtons = document.getElementById('control-buttons');
-
-            modal.style.zIndex = '1000';
-            
-            document.body.innerHTML = '';
-            
-            document.body.appendChild(phoneContainer);
-            document.body.appendChild(modal);
-            
-            document.body.appendChild(controlButtons);
-            
-            document.body.style.overflow = ''; 
-        }
-    }
-
-    function downloadFrameAsPNG(captureElementOrId, fileName, isQuoteCapture = false) {
+    // 코스 목록 프레임 캡처 (이전과 거의 동일)
+    function downloadFrameAsPNG(captureElementOrId, fileName) {
         let captureElement;
         
         if (typeof captureElementOrId === 'string') {
             captureElement = document.getElementById(captureElementOrId);
-        } else if (captureElementOrId instanceof Element) {
-            captureElement = captureElementOrId;
         } else {
-            console.error("유효하지 않은 캡처 대상입니다.");
             return;
         }
 
-        if (captureElement.id === 'phone-frame-capture' && isEditingMode) {
+        if (isEditingMode) {
             alert("편집 모드에서는 캡처할 수 없습니다. 일반 가격표 보기로 전환해 주세요.");
             return;
-        }
-        
-        const isPhoneFrameCapture = captureElement.id === 'phone-frame-capture';
-        
-        if (isQuoteCapture) {
-            document.getElementById('download-quote-btn').style.display = 'none';
-            document.getElementById('modal-close-btn').style.display = 'none';
         }
         
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
+            // 외부 제어 버튼들을 캡처 대상에서 제외
             ignoreElements: (node) => {
                 if (node.id === 'control-buttons') {
                     return true;
                 }
-                
-                // 상세 페이지에서는 내부 버튼 (뒤로가기 등)은 캡처되어야 함.
-                // 외부 버튼들만 무시
-                if (isPhoneFrameCapture && node.classList && node.classList.contains('detail-only')) {
-                    // detail-only 클래스를 가진 외부 버튼은 캡처하지 않음
-                    return true; 
-                }
-                
                 return false;
             },
-            ...(isPhoneFrameCapture ? {
-                windowHeight: captureElement.scrollHeight,
-                scrollY: -captureElement.scrollTop
-            } : {})
+            windowHeight: captureElement.scrollHeight,
+            scrollY: -captureElement.scrollTop
         }).then(canvas => {
-            if (isQuoteCapture) {
-                document.getElementById('download-quote-btn').style.display = 'block';
-                document.getElementById('modal-close-btn').style.display = 'block';
-            }
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
+        }).catch(err => {
+            console.error("PNG 캡처 실패:", err);
+            alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
+        });
+    }
+
+    /**
+     * [핵심 수정] 견적서 모달만 캡처하고, 다른 버튼들은 DOM에서 제거하지 않아 유지되도록 수정
+     */
+    function downloadQuoteAsPNG(fileName) {
+        if (!currentSelectedCourseKey) {
+            alert("견적서 캡처를 위해 코스를 먼저 선택해 주세요.");
+            return;
+        }
+        
+        // 1. 견적서 모달 내용을 준비 (모달이 띄워지지 않았다면)
+        showFinalQuote(); 
+        
+        const modalContent = document.getElementById('modal-capture-target');
+
+        // 모달 내부의 닫기 버튼을 캡처에서 제외하기 위해 임시로 숨김
+        const modalButtons = document.querySelectorAll('#final-quote-modal .modal-button');
+        modalButtons.forEach(btn => btn.style.display = 'none');
+        
+        html2canvas(modalContent, {
+            scale: 2, 
+            useCORS: true,
+            backgroundColor: '#ffffff' // 모달 배경색을 확실히 흰색으로 지정
+        }).then(canvas => {
+            // 캡처 후 다시 버튼 보이기
+            modalButtons.forEach(btn => btn.style.display = 'block');
             
+            // 모달은 닫지 않고, PNG 다운로드
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = fileName;
@@ -954,21 +723,13 @@
             document.body.removeChild(link);
             alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
 
-            if (isQuoteCapture) {
-                restoreBodyFromCapture();
-                document.getElementById('final-quote-modal').style.display = 'flex'; 
-            }
         }).catch(err => {
-            if (isQuoteCapture) {
-                document.getElementById('download-quote-btn').style.display = 'block';
-                document.getElementById('modal-close-btn').style.display = 'block';
-                restoreBodyFromCapture();
-                document.getElementById('final-quote-modal').style.display = 'flex'; 
-            }
-            console.error("PNG 캡처 실패:", err);
-            alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
+            modalButtons.forEach(btn => btn.style.display = 'block');
+            console.error("견적서 PNG 캡처 실패:", err);
+            alert("❌ 견적서 PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
         });
     }
+
 
     // --- 초기화 ---
     window.onload = () => {
