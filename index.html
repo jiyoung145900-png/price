@@ -13,11 +13,39 @@
             padding: 0; 
             display: flex; 
             justify-content: center; 
+            /* phone-container의 배경색은 phone-frame 밖에서 설정합니다. */
             background-color: #f0f2f5; 
-            position: relative;
+            position: relative; 
         }
+        
+        /* [핵심 수정: 캡처 시 전체 화면을 감싸는 래퍼 스타일] */
+        /* 이 스타일은 견적서 캡처 시에만 body 직전에 동적으로 추가됩니다. */
+        .body-capture-wrapper {
+            /* 캡처할 때의 전체 화면 크기 (모든 스크롤을 방지) */
+            position: fixed; /* 절대 고정 */
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            overflow: hidden; /* 스크롤바 방지 */
+            background-color: #f0f2f5; /* body 배경색과 동일하게 설정 */
+            z-index: 1002; /* 모달(1000)보다 높고, 제어 버튼(1001)과 분리 */
+        }
+        .body-capture-wrapper .phone-container {
+            /* 폰 컨테이너를 캡처 래퍼 중앙에 고정 */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* 캡처 시 불필요한 배경 요소를 숨기거나 제거 */
+        }
+        
+        /* 캡처 시에는 제어 버튼 숨김 */
+        .body-capture-wrapper #control-buttons {
+            display: none !important;
+        }
+
+
         .phone-container {
-            position: relative;
+            position: relative; /* ★★★ 절대 위치 기준점 설정 ★★★ */
             display: flex;
             justify-content: center;
         }
@@ -28,13 +56,12 @@
             background-color: #fff;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
             border-radius: 20px;
-            /* ★★★ 수정 1: 뷰 겹침 방지를 위해 프레임 패딩 제거 ★★★ */
-            padding: 0; 
+            padding: 30px 25px; 
             box-sizing: border-box;
             position: relative;
         }
 
-        /* ★★★ 배경 이미지 삽입 공간 (유지) ★★★ */
+        /* ★★★ 배경 이미지 삽입 공간 ★★★ */
         #main-background {
             position: absolute;
             top: 0;
@@ -48,66 +75,300 @@
             background-position: center; 
         }
         
-        /* ★★★ 수정 2: 모든 뷰에 절대 위치 및 패딩 적용 (뷰 겹침 방지) ★★★ */
         #course-list-view, #detail-view, #admin-view {
-            position: absolute; /* 절대 위치로 겹침 방지 */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto; /* 내용이 길어지면 뷰 내부에서 스크롤 */
-            box-sizing: border-box;
-            padding: 30px 25px; /* 프레임의 원래 패딩을 뷰에 적용 */
+            position: relative;
             z-index: 1; 
-            background-color: transparent; /* 프레임 배경이 보이도록 투명 설정 */
         }
-        
-        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (유지) --- */
+
+        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
-            position: absolute;
-            top: 30px;
-            right: -170px;
-            z-index: 1001;
+            position: absolute; /* ★★★ 절대 위치 지정 ★★★ */
+            top: 30px; /* 프레임 상단 기준 30px 아래 */
+            right: -170px; /* 프레임 오른쪽 기준 바깥으로 170px 이동 (버튼 너비 고려) */
+            z-index: 1001; /* 다른 요소 위에 항상 표시 */
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* 버튼들을 세로로 나열 */
             gap: 10px; 
-            width: 150px;
+            width: 150px; /* 버튼 그룹 너비 지정 */
         }
 
-        /* 나머지 CSS는 유지합니다. */
+        /* 개별 버튼 스타일 조정 */
+        #toggle-admin-btn, #download-list-btn {
+            padding: 10px 10px; 
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%; /* 그룹 너비에 맞춤 */
+            font-weight: bold;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+            transition: background-color 0.2s;
+        }
 
-        /* 편집 모드 스타일 */
-        #admin-view {
-            background-color: #ffe0f7; /* 관리자 모드 배경색 유지 */
-            border: 2px dashed #d11e8a;
-            /* padding은 이미 위에 설정됨 */
+        /* 버튼별 색상 설정 */
+        #toggle-admin-btn {
+            background-color: #5B5BFF;
+            color: white;
+        }
+        #download-list-btn {
+            background-color: #ff69b4; 
+            color: white;
+        }
+
+        /* 편집 모드일 때의 버튼 색상 */
+        .admin-mode-active {
+            background-color: #FF0000 !important;
+            box-shadow: 0 4px 0 #b30000 !important;
         }
         
-        /* 코스 목록 헤더 스타일 (마진 조정) */
+        /* --- 3. 코스 목록 스타일 (다시 원래 마진 사용) --- */
+        #admin-view {
+            display: none; 
+            background-color: #ffe0f7;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px dashed #d11e8a;
+        }
+        
+        /* 나머지 편집 모드 스타일은 유지 */
+        .admin-course-item {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffb6c1;
+        }
+        .admin-course-item input, .admin-course-item button, .admin-option-item input {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .admin-course-item .price-input { width: calc(50% - 15px); float: right; margin-left: 10px; }
+        .admin-course-item .name-input { width: calc(50% - 15px); }
+
+        .admin-option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+        .admin-option-item input {
+            width: 35%;
+            margin: 0;
+        }
+        .admin-option-item button {
+            width: 25%;
+            padding: 8px 5px;
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        .admin-button-group button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
         .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            margin-top: 50px; /* 적당한 마진으로 조정 */
+            margin-top: 150px; 
             margin-bottom: 30px; 
         }
-
-        /* 상세 뷰 스타일 */
-        #detail-view { 
-            background-color: rgba(245, 248, 255, 0.95); 
-            /* padding은 이미 위에 설정됨 */
-            /* flex-direction: column; 이 절대 위치 설정으로 인해 필요하지 않음. */
+        .course-item {
+            background-color: rgba(255, 240, 245, 0.95); 
+            border: 2px solid #ffb6c1;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .course-item .course-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #d11e8a;
+        }
+        .course-item .course-price {
+            font-size: 1.2em;
+            font-weight: 900;
+            color: #5B5BFF;
+            margin-left: 15px;
         }
         
-        /* --- 6. 최종 견적 모달 (유지) --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 (유지) --- */
+        #detail-view { 
+            display: none; 
+            flex-direction: column;
+            background-color: rgba(245, 248, 255, 0.95); 
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #detail-view h3 {
+            color: #d11e8a;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+        #detail-view p {
+            font-size: 1.1em;
+            color: #333;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        #options-list h3 {
+            color: #5B5BFF;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ff69b4;
+            padding-left: 10px;
+        }
+        .option-item input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 15px;
+            accent-color: #ff69b4; 
+        }
+
+        /* 합계 금액 필드 */
+        #total-display {
+            background-color: #f7f7f7;
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+        }
+        #current-total-price {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #ff0000;
+        }
+
+        /* --- 5. 상세/견적 버튼 --- */
+        .action-btn { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 25px; 
+            border-radius: 10px; 
+            font-size: 1.2em; 
+            cursor: pointer; 
+            border: none;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        #quote-modal-btn { 
+            background-color: #ff69b4; 
+            color: white; 
+            box-shadow: 0 4px 0 #d11e8a;
+        }
+        #back-btn { 
+            background-color: #ccc; 
+            color: #333;
+            box-shadow: 0 4px 0 #999;
+        }
+
+        /* --- 6. 최종 견적 모달 --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.7); /* 흐릿한 배경 */
             z-index: 1000; 
             justify-content: center; align-items: center; 
         }
-        /* ... 나머지 CSS 유지 ... */
+        .modal-content { 
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 3px solid #ff69b4; 
+        }
+        .quote-header { 
+            text-align: center; 
+            border-bottom: 3px solid #d11e8a; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px;
+        }
+        .quote-header h3 { color: #d11e8a; font-size: 1.8em;}
+        
+        .quote-options { 
+            padding: 10px 0; 
+            border-top: 1px dashed #ffb6c1; 
+            border-bottom: 1px dashed #ffb6c1; 
+            margin-bottom: 20px;
+        }
+        .quote-options h4 {
+            color: #5B5BFF;
+            font-weight: bold;
+            margin-top: 5px;
+            margin-bottom: 8px;
+        }
+        .quote-options ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .quote-options li {
+            list-style-type: none; 
+            position: relative;
+            padding-left: 20px;
+        }
+        .quote-options li::before {
+            content: "🌸"; 
+            position: absolute;
+            left: 0;
+            font-size: 0.8em;
+        }
+
+        /* 최종 합계 금액 강조 */
+        .final-total {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #d11e8a; 
+        }
+        .final-total .total-price { 
+            font-size: 3.5em; 
+            font-weight: 900; 
+            color: #ff0000; 
+        }
+
+        /* 모달 버튼 스타일 */
+        .modal-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        /* 추가: 견적서 캡처 버튼 스타일 */
+        #download-quote-btn {
+            background-color: #4CAF50; 
+            color: white; 
+            box-shadow: 0 4px 0 #388E3C;
+        }
+
+        #modal-close-btn { 
+            background-color: #ccc; 
+            color: #333; 
+            margin-top: 15px;
+            box-shadow: 0 4px 0 #999;
+        }
     </style>
 </head>
 <body>
@@ -125,7 +386,7 @@
             </div>
         </div>
 
-        <div id="admin-view" style="display: none;">
+        <div id="admin-view">
             <h3>🔑 코스 및 옵션 편집 모드</h3>
             <div id="admin-course-editor">
                 </div>
@@ -134,7 +395,7 @@
         </div>
 
 
-        <div id="detail-view" style="display: none;">
+        <div id="detail-view">
             <h3 id="detail-title-selected" style="color: #d11e8a; text-align: center;"></h3>
             <p style="text-align: center;">[<span id="detail-time-selected"></span> | 기본 금액: ₩ <span id="detail-price-selected-val">0</span>]</p>
 
@@ -172,81 +433,27 @@
             <div class="total-price">₩ <span id="modal-total-price">0</span></div>
         </div>
         
-        <button id="download-quote-btn" class="modal-button" onclick="downloadFrameAsPNG(document.body, 'DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
+        <button id="download-quote-btn" class="modal-button" onclick="prepareQuoteCaptureAndDownload('DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
         <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
 
 <script>
-    // ... (이전 JavaScript 코드 유지)
-
-    // --- PNG 다운로드 기능 (수정됨: 캡처할 요소와 파일명을 인수로 받음) ---
-    function downloadFrameAsPNG(captureElementOrId, fileName) {
-        let captureElement;
-        
-        if (typeof captureElementOrId === 'string') {
-            captureElement = document.getElementById(captureElementOrId);
-        } else if (captureElementOrId instanceof Element) {
-            captureElement = captureElementOrId;
-        } else {
-            console.error("유효하지 않은 캡처 대상입니다.");
-            return;
-        }
-
-        if (captureElement.id === 'phone-frame-capture' && isEditingMode) {
-            alert("편집 모드에서는 캡처할 수 없습니다. 일반 가격표 보기로 전환해 주세요.");
-            return;
-        }
-        
-        const isBodyCapture = captureElement === document.body;
-        
-        html2canvas(captureElement, {
-            scale: 2, 
-            useCORS: true,
-            ignoreElements: (node) => {
-                // 제어 버튼(편집/다운로드)은 항상 제외
-                if (node.id === 'control-buttons') {
-                    return true;
-                }
-                
-                // ★★★ 수정 3: 폰 프레임 캡처 시, 견적서/뒤로가기 버튼만 제외 (모달 버튼은 body 캡처 시에도 남기도록 로직 제거) ★★★
-                if (captureElement.id === 'phone-frame-capture') {
-                     if (node.id === 'quote-modal-btn' || node.id === 'back-btn') {
-                        return true;
-                    }
-                }
-                
-                return false;
-            },
-            // body 캡처가 아닌 경우에만 스크롤을 고려
-            ...(isBodyCapture ? {} : {
-                windowHeight: captureElement.scrollHeight,
-                scrollY: -captureElement.scrollTop
-            })
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
-        }).catch(err => {
-            console.error("PNG 캡처 실패:", err);
-            alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
-        });
-    }
-
-    // ... (나머지 JavaScript 코드 유지)
+    // 최초 기본 데이터
+    const INITIAL_COURSES = {
+        'sapphire': { title: '사파이어', time: '1시간', basePrice: 50000, options: [{name: '로리플', price: 20000}, {name: '애널', price: 15000}, {name: '코스추가1', price: 10000}, {name: '코스추가2', price: 5000}] },
+        'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
+        'ruby': { title: '루비', time: '4시간', basePrice: 350000, options: [{name: '장소 변경 협의', price: 50000}, {name: '루비 전용 샴페인', price: 80000}] },
+        'diamond': { title: '다이아몬드', time: '8시간', basePrice: 600000, options: [{name: '24시간 컨시어지', price: 100000}, {name: '최고급 케어', price: 50000}] },
+        'topaz': { title: '토파즈', time: '24시간', basePrice: 1200000, options: [{name: '종일 풀 패키지', price: 0}, {name: '토파즈 전용 특전', price: 150000}] }
+    };
     
-    // 이전에 정의된 모든 JavaScript 함수들을 이 위치에 붙여넣어 사용하시면 됩니다.
-
-    const INITIAL_COURSES = { /* ... */ };
-    let coursesData;  
+    let coursesData; 
     let currentSelectedCourseKey = null;
     let isEditingMode = false;
     let newCourseIndex = 0; 
-    
+    let originalBodyChildren = []; // 모달 캡처를 위해 body의 원래 내용을 저장할 배열
+
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
     function loadCoursesData() {
@@ -575,10 +782,162 @@
         document.getElementById('final-quote-modal').style.display = 'flex';
     }
 
+    // [핵심 추가] 모달을 캡처하기 전에 body의 상태를 조정하는 함수
+    function prepareQuoteCaptureAndDownload(fileName) {
+        const phoneContainer = document.querySelector('.phone-container');
+        const modal = document.getElementById('final-quote-modal');
+        const controlButtons = document.getElementById('control-buttons');
+        
+        // 1. body의 현재 내용(폰 프레임, 모달)을 저장
+        originalBodyChildren = Array.from(document.body.children);
+        
+        // 2. 캡처 전, 모달의 z-index를 캡처 래퍼가 감싸도록 조정 (기존 z-index: 1000)
+        modal.style.zIndex = '1003';
+        
+        // 3. body의 모든 자식 요소를 제거
+        document.body.innerHTML = '';
+        
+        // 4. 캡처를 위한 임시 래퍼를 생성하고 클래스 추가 (CSS 적용)
+        const captureWrapper = document.createElement('div');
+        captureWrapper.id = 'body-capture-wrapper';
+        captureWrapper.classList.add('body-capture-wrapper');
+
+        // 5. 폰 컨테이너와 모달을 래퍼 안으로 이동
+        captureWrapper.appendChild(phoneContainer);
+        captureWrapper.appendChild(modal);
+
+        // 6. 래퍼를 body에 추가
+        document.body.appendChild(captureWrapper);
+
+        // 7. 캡처 함수 호출 (래퍼 요소를 캡처 대상으로 지정)
+        downloadFrameAsPNG(captureWrapper, fileName, true);
+        
+        // 8. 캡처가 완료되면 body를 원래대로 복구하는 로직은 downloadFrameAsPNG의 .then() 안에 작성됩니다.
+    }
+    
+    // [수정] 모달 닫기 버튼을 누르면 원래의 body 상태로 복구
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
+        
+        // 혹시 모를 경우를 대비하여 캡처 래퍼가 남아있다면 제거하는 함수 호출
+        restoreBodyFromCapture();
+    }
+    
+    // [추가] body를 캡처 이전 상태로 복구하는 함수
+    function restoreBodyFromCapture() {
+        const captureWrapper = document.getElementById('body-capture-wrapper');
+        
+        if (captureWrapper) {
+            const modal = document.getElementById('final-quote-modal');
+            const phoneContainer = document.querySelector('.phone-container');
+            const controlButtons = document.getElementById('control-buttons');
+
+            // 1. 모달의 z-index 원복 (기존 z-index: 1000)
+            modal.style.zIndex = '1000';
+            
+            // 2. body의 모든 자식 요소를 제거
+            document.body.innerHTML = '';
+            
+            // 3. 폰 컨테이너와 모달을 body로 복구
+            document.body.appendChild(phoneContainer);
+            document.body.appendChild(modal);
+            
+            // 4. 원래의 body 자식 요소를 복구합니다.
+            // (이 경우 phone-container와 modal이 이미 body에 붙었으므로, control-buttons만 추가합니다.)
+            document.body.appendChild(controlButtons);
+            
+            // 5. 래퍼가 있었다면 제거 (이미 innerHTML = ''로 지워졌겠지만 안전하게)
+            // if (captureWrapper.parentNode) {
+            //     captureWrapper.parentNode.removeChild(captureWrapper);
+            // }
+
+            // 6. 스크롤바를 다시 허용
+            document.body.style.overflow = ''; 
+        }
     }
 
+
+    // --- PNG 다운로드 기능 (수정됨: 캡처할 요소와 파일명을 인수로 받음, isQuoteCapture 추가) ---
+    function downloadFrameAsPNG(captureElementOrId, fileName, isQuoteCapture = false) {
+        let captureElement;
+        
+        if (typeof captureElementOrId === 'string') {
+            captureElement = document.getElementById(captureElementOrId);
+        } else if (captureElementOrId instanceof Element) {
+            captureElement = captureElementOrId;
+        } else {
+            console.error("유효하지 않은 캡처 대상입니다.");
+            return;
+        }
+
+        if (captureElement.id === 'phone-frame-capture' && isEditingMode) {
+            alert("편집 모드에서는 캡처할 수 없습니다. 일반 가격표 보기로 전환해 주세요.");
+            return;
+        }
+        
+        // 폰 프레임 캡처 여부 확인
+        const isPhoneFrameCapture = captureElement.id === 'phone-frame-capture';
+        
+        // 캡처 전에 불필요한 요소 숨기기 (모달 캡처 버튼은 모달 내부에 있어 html2canvas의 ignoreElements로 처리하기 어렵기 때문에 임시로 숨깁니다.)
+        if (isQuoteCapture) {
+            document.getElementById('download-quote-btn').style.display = 'none';
+            document.getElementById('modal-close-btn').style.display = 'none';
+        }
+        
+        html2canvas(captureElement, {
+            scale: 2, 
+            useCORS: true,
+            ignoreElements: (node) => {
+                // 제어 버튼(편집/다운로드)은 항상 제외 (하지만 isQuoteCapture 시에는 body 구조가 바뀌어 이미 제외됨)
+                if (node.id === 'control-buttons') {
+                    return true;
+                }
+                
+                // 폰 프레임 캡처 시, 견적서 보기/뒤로가기 버튼 제외
+                if (isPhoneFrameCapture && node.classList && node.classList.contains('action-btn')) {
+                    return true;
+                }
+                
+                return false;
+            },
+            // 폰 프레임 캡처(목록/상세)인 경우에만 스크롤을 고려
+            ...(isPhoneFrameCapture ? {
+                windowHeight: captureElement.scrollHeight,
+                scrollY: -captureElement.scrollTop
+            } : {})
+        }).then(canvas => {
+            // 캡처 후 숨긴 버튼 다시 표시
+            if (isQuoteCapture) {
+                document.getElementById('download-quote-btn').style.display = 'block';
+                document.getElementById('modal-close-btn').style.display = 'block';
+            }
+            
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
+
+            // [핵심 로직] 모달 캡처 후 body 상태를 원래대로 복구합니다.
+            if (isQuoteCapture) {
+                restoreBodyFromCapture();
+                document.getElementById('final-quote-modal').style.display = 'flex'; // 복구 후 모달 다시 보여주기
+            }
+        }).catch(err => {
+            // 오류 발생 시에도 복구
+            if (isQuoteCapture) {
+                // 캡처 후 숨긴 버튼 다시 표시
+                document.getElementById('download-quote-btn').style.display = 'block';
+                document.getElementById('modal-close-btn').style.display = 'block';
+                restoreBodyFromCapture();
+                document.getElementById('final-quote-modal').style.display = 'flex'; // 복구 후 모달 다시 보여주기
+            }
+            console.error("PNG 캡처 실패:", err);
+            alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
+        });
+    }
 
     // --- 초기화 ---
     window.onload = () => {
