@@ -66,7 +66,7 @@
         }
 
         /* 개별 버튼 스타일 조정 */
-        #toggle-admin-btn, #download-list-btn {
+        #toggle-admin-btn, #download-list-btn, #download-quote-btn {
             padding: 10px 10px; 
             border: none;
             border-radius: 6px;
@@ -87,6 +87,14 @@
             background-color: #ff69b4; 
             color: white;
         }
+        /* 추가: 견적서 캡처 버튼 스타일 (모달이 열렸을 때만 표시) */
+        #download-quote-btn {
+            background-color: #4CAF50; 
+            color: white; 
+            box-shadow: 0 4px 0 #388E3C;
+            display: none; /* 초기에는 숨김 */
+        }
+
 
         /* 편집 모드일 때의 버튼 색상 */
         .admin-mode-active {
@@ -319,27 +327,17 @@
         }
 
         /* 모달 버튼 스타일 */
-        .modal-button {
+        #modal-close-btn { 
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
             padding: 12px 20px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.2s;
-        }
-        /* 추가: 견적서 캡처 버튼 스타일 */
-        #download-quote-btn {
-            background-color: #4CAF50; 
-            color: white; 
-            box-shadow: 0 4px 0 #388E3C;
-        }
-
-        #modal-close-btn { 
             background-color: #ccc; 
             color: #333; 
-            margin-top: 15px;
             box-shadow: 0 4px 0 #999;
         }
     </style>
@@ -389,6 +387,7 @@
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
         <button id="download-list-btn" onclick="downloadFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">🖼️ PNG 다운로드</button>
+        <button id="download-quote-btn" onclick="downloadFrameAsPNG('final-quote-modal', 'DAISY_견적서_캡처.png')">📸 견적 캡처</button>
     </div>
 </div>
 
@@ -406,9 +405,7 @@
             <div class="total-price">₩ <span id="modal-total-price">0</span></div>
         </div>
         
-        <button id="download-quote-btn" class="modal-button" onclick="downloadFrameAsPNG(document.body, 'DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
-        
-        <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
+        <button id="modal-close-btn" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
 
@@ -471,6 +468,8 @@
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
         document.getElementById('download-list-btn').style.display = 'block'; 
+        // 견적 캡처 버튼 숨김
+        document.getElementById('download-quote-btn').style.display = 'none';
 
         const itemsContainer = document.getElementById('course-items-container');
         let html = '';
@@ -511,6 +510,7 @@
             document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료';
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
             document.getElementById('download-list-btn').style.display = 'none'; 
+            document.getElementById('download-quote-btn').style.display = 'none'; // 편집 모드에서는 견적 캡처 버튼 숨김
             renderAdminEditor();
         } else {
             // 편집 모드 끄고 일반 목록으로 돌아가기
@@ -753,10 +753,19 @@
         document.getElementById('quote-details-content').innerHTML = detailContent;
         document.getElementById('modal-total-price').textContent = formatPrice(totalPrice);
         document.getElementById('final-quote-modal').style.display = 'flex';
+        
+        // ★★★ 모달이 열리면 견적 캡처 버튼 표시 ★★★
+        document.getElementById('download-quote-btn').style.display = 'block';
+        // 목록 다운로드 버튼 숨김 (둘 중 하나만 활성화)
+        document.getElementById('download-list-btn').style.display = 'none';
     }
 
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
+        
+        // ★★★ 모달이 닫히면 목록 다운로드 버튼 표시, 견적 캡처 버튼 숨김 ★★★
+        document.getElementById('download-list-btn').style.display = 'block';
+        document.getElementById('download-quote-btn').style.display = 'none';
     }
     
     // --- PNG 다운로드 기능 (수정됨: 캡처할 요소와 파일명을 인수로 받음) ---
@@ -777,9 +786,9 @@
             return;
         }
         
-        // body 전체를 캡처할 때는 scrollY와 windowHeight 설정을 조정하거나 제거합니다.
-        const isBodyCapture = captureElement === document.body;
-        
+        // 모달 오버레이 캡처 (요청하신 모달 + 배경 캡처)
+        const isModalCapture = captureElement.id === 'final-quote-modal';
+
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
@@ -794,15 +803,15 @@
                     return true;
                 }
 
-                // 모달 캡처 시 (body 캡처), 외부 버튼을 제외
-                if (isBodyCapture && node.id === 'control-buttons') {
-                    return true;
+                // 모달 캡처 시 (final-quote-modal 캡처), 모달 내 닫기 버튼을 제외
+                if (isModalCapture && node.id === 'modal-close-btn') {
+                    return false; // 닫기 버튼은 모달 내에 있으므로 캡처 대상에 포함 (실수로 제외되지 않도록 주의)
                 }
                 
                 return false;
             },
-            // body 캡처가 아닌 경우에만 스크롤을 고려 (전화기 프레임 캡처)
-            ...(isBodyCapture ? {} : {
+            // 모달 오버레이(fixed position)를 캡처할 때는 스크롤 설정을 사용하지 않음
+            ...(isModalCapture ? {} : {
                 windowHeight: captureElement.scrollHeight,
                 scrollY: -captureElement.scrollTop
             })
