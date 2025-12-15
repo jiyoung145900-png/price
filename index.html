@@ -24,7 +24,6 @@
             /* 요청 사이즈 680x1248px에 맞춤 */
             width: 680px; 
             height: 1248px; 
-            /* 캡처 시 전체 내용이 포함되도록 overflow-y: auto 유지 */
             overflow-y: auto; 
             background-color: #fff;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
@@ -65,7 +64,6 @@
         }
         #detail-view { 
             background-color: rgba(245, 248, 255, 0.95); 
-            /* 이 안에 있던 버튼들은 화면 밖으로 분리되었습니다. */
         }
         
         /* --- 3. 최종 견적 모달 (캡처용) --- */
@@ -96,6 +94,7 @@
             width: 100%;
             font-weight: bold;
         }
+        #modal-close-btn { background-color: #ccc; color: #333; margin-top: 15px;}
 
         /* --- 4. 외부 컨트롤 버튼 (화면 밖 배치) --- */
         #external-controls {
@@ -116,13 +115,13 @@
             cursor: pointer; 
             border: none; 
             font-weight: bold; 
-            white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+            white-space: nowrap;
         }
         #admin-mode-btn { background-color: #333; }
         #png-download-btn { background-color: #5B5BFF; }
         #external-save-btn { background-color: green; display: none; } 
-        #external-quote-btn { background-color: #ff69b4; display: none; } /* 상세 화면에서만 보이도록 초기 숨김 */
-        #external-back-btn { background-color: #ccc; color: #333; display: none; } /* 상세 화면에서만 보이도록 초기 숨김 */
+        #external-quote-btn { background-color: #ff69b4; display: none; } 
+        #external-back-btn { background-color: #ccc; color: #333; display: none; } 
 
         /* --- 5. 관리자 패널 스타일 --- */
         #admin-panel { 
@@ -148,7 +147,7 @@
         <button id="admin-mode-btn" class="external-control-btn" onclick="toggleAdminMode()">⚙️ 가격/옵션 설정</button>
         <button id="external-save-btn" class="external-control-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
         
-        <button id="external-quote-btn" class="external-control-btn" onclick="showFinalQuote()">💸 최종 견적서 보기 (캡처용)</button>
+        <button id="external-quote-btn" class="external-control-btn" onclick="showFinalQuote()">💸 최종 견적서 보기</button>
         <button id="external-back-btn" class="external-control-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
 
         <button id="png-download-btn" class="external-control-btn" onclick="downloadFrameAsPNG(false)">🖼️ 현재 화면 PNG 다운로드</button>
@@ -185,7 +184,7 @@
                 <h3>선택 옵션 추가 (복수 선택 가능)</h3>
             </div>
             
-            </div>
+        </div>
     </div>
 </div>
 
@@ -209,9 +208,6 @@
 </div>
 
 <script>
-    // **********************************************
-    // ★★★ 1. 초기 코스 데이터 (관리자 모드에서 수정 가능) ★★★
-    // **********************************************
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 100000, options: [{name: '추가 음료', price: 10000}, {name: '간단한 스낵', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -265,7 +261,7 @@
             `;
         }
         document.getElementById('course-list-view').innerHTML = html;
-        document.getElementById('phone-frame-capture').scrollTop = 0; // 목록 보기 시 스크롤 맨 위로
+        document.getElementById('phone-frame-capture').scrollTop = 0;
     }
 
     function selectCourse(key) {
@@ -274,7 +270,7 @@
         
         document.getElementById('course-list-view').style.display = 'none';
         document.getElementById('detail-view').style.display = 'flex';
-        toggleDetailButtons(true); // 상세 버튼 보이기
+        toggleDetailButtons(true);
         
         document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
         document.getElementById('detail-time-selected').textContent = course.time;
@@ -283,7 +279,7 @@
         renderOptions(course.options);
         
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach(cb => cb.checked = false);
-        document.getElementById('phone-frame-capture').scrollTop = 0; // 상세 화면 보기 시 스크롤 맨 위로
+        document.getElementById('phone-frame-capture').scrollTop = 0;
     }
 
     function renderOptions(options) {
@@ -347,7 +343,7 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
 
-    // --- 관리자 모드 및 저장 함수 ---
+    // --- 관리자 모드 및 저장 함수 (이전과 동일) ---
     function toggleAdminMode() {
         const adminPanel = document.getElementById('admin-panel');
         const externalSaveBtn = document.getElementById('external-save-btn');
@@ -418,7 +414,7 @@
         }
     }
 
-    // --- PNG 다운로드 기능 (모달 내부/외부 버튼 모두 사용) ---
+    // --- PNG 다운로드 기능 (수정 완료) ---
     function downloadFrameAsPNG(isModalDownload) {
         let captureElement;
         let fileName;
@@ -437,8 +433,9 @@
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
+            // 캡처에서 제외할 요소를 정확히 지정합니다.
             ignoreElements: (node) => {
-                // 모달 내부에서 캡처할 때, 닫기 버튼과 PNG 다운로드 버튼은 캡처에서 제외
+                // 모달 캡처 시, 클래스가 'modal-button'인 모든 요소를 제외
                 if (captureElement.id === 'modal-capture-target') {
                     return node.classList.contains('modal-button');
                 }
