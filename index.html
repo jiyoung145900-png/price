@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAISY 코스 및 가격표</title>
+    <style>
+        /* --- 1. 기본 및 레이아웃 스타일 --- */
+        body { font-family: 'Malgun Gothic', 'Arial', sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 20px 10px; }
+        .container { max-width: 700px; margin: 0 auto; background-color: #fff; padding: 30px 20px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #ff69b4; /* 핑크 계열 */ margin-bottom: 30px; border-bottom: 3px solid #f0f0f0; padding-bottom: 15px; }
+        h2 { color: #5B5BFF; font-size: 1.4em; margin-bottom: 20px; text-align: center; }
+
+        /* --- 2. 코스 버튼 스타일 --- */
+        #course-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .course-btn { 
+            background-color: #ffe0f6; /* 연한 핑크 배경 */
+            color: #d11e8a; /* 진한 핑크 텍스트 */
+            border: 1px solid #ffb6c1; 
+            padding: 18px 10px; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .course-btn:hover { background-color: #ffcce6; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .course-btn.active { background-color: #ff69b4; color: white; border: 1px solid #d11e8a; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+        /* --- 3. 상세 정보 스타일 --- */
+        #course-details { 
+            padding: 25px; 
+            border: 2px solid #ffb6c1; 
+            border-radius: 10px; 
+            background-color: #fffafc; /* 매우 연한 핑크 */
+            text-align: center; 
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s;
+        }
+        #detail-title { color: #d11e8a; font-size: 1.8em; margin-top: 0; }
+        #detail-time { font-size: 1.1em; color: #555; margin-bottom: 10px; }
+        .price { font-size: 30px; color: #ff0000; font-weight: 900; margin: 15px 0; }
+        #select-options-btn { 
+            background-color: #5B5BFF; 
+            color: white; 
+            border: none; 
+            padding: 14px 30px; 
+            border-radius: 8px; 
+            font-size: 17px; 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+            margin-top: 20px;
+        }
+        #select-options-btn:hover { background-color: #4444ff; }
+
+        /* --- 4. 모달 (팝업 옵션창) 스타일 --- */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(0, 0, 0, 0.7); 
+            z-index: 1000; 
+            justify-content: center; align-items: center; 
+        }
+        .modal-content { 
+            background-color: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 450px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 { color: #d11e8a; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 1.5em; }
+        .option-item { margin-bottom: 15px; font-size: 1em; text-align: left; }
+        .option-item label { display: block; padding: 8px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; cursor: pointer; transition: background-color 0.1s; }
+        .option-item label:hover { background-color: #f0f0f0; }
+        .option-item input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
+        
+        .modal-content button { 
+            margin-top: 25px; 
+            background-color: #888; 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: background-color 0.2s;
+        }
+        .modal-content button:hover { background-color: #666; }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DAISY HOOKUPS</h1>
+    <h2>💎 코스를 선택해 주세요 💎</h2>
+    
+    <div id="course-selection">
+        <button class="course-btn" data-course="sapphire">사파이어</button>
+        <button class="course-btn" data-course="emerald">에메랄드</button>
+        <button class="course-btn" data-course="ruby">루비</button>
+        <button class="course-btn" data-course="diamond">다이아몬드</button>
+        <button class="course-btn" data-course="topaz">토파즈</button>
+    </div>
+
+    <div id="course-details" style="display: none;">
+        <h3 id="detail-title"></h3>
+        <p id="detail-time"></p>
+        <div class="price" id="detail-price"></div>
+        
+        <button id="select-options-btn">✨ 이 코스 선택하고 옵션 보기</button>
+    </div>
+</div>
+
+<div id="option-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="modal-title"></h3>
+        <p style="text-align: center;">필요한 옵션을 선택해 주세요. (중복 선택 가능)</p>
+        <div id="options-content">
+            </div>
+        <button onclick="closeOptionModal()">선택 완료 및 닫기</button>
+    </div>
+</div>
+
+<script>
+    // **********************************************
+    // ★★★ 1. 코스 가격 및 옵션 데이터를 여기에 수정/입력하세요 ★★★
+    // **********************************************
+    const courses = {
+        'sapphire': {
+            title: '사파이어 코스',
+            time: '총 1시간 진행',
+            price: '₩ 100,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
+            options: [
+                '기본 케어 (무료)', 
+                '음료 서비스 추가 (+1만원)', 
+                '시간 연장 가능 여부 문의' 
+            ]
+        },
+        'emerald': {
+            title: '에메랄드 코스',
+            time: '총 2시간 진행',
+            price: '₩ 180,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
+            options: [
+                '프리미엄 공간 선택', 
+                '맞춤형 BGM 서비스', 
+                '에메랄드 전용 특별 간식'
+            ]
+        },
+        'ruby': {
+            title: '루비 코스',
+            time: '총 4시간 진행',
+            price: '₩ 350,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
+            options: [
+                '장소 변경 옵션 (추가금 발생)', 
+                'VIP 대기 시간 서비스', 
+                '루비 전용 샴페인 서비스'
+            ]
+        },
+        'diamond': {
+            title: '다이아몬드 코스',
+            time: '총 8시간 진행',
+            price: '₩ 600,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
+            options: [
+                '24시간 컨시어지 서비스', 
+                '숙박 관련 편의 제공', 
+                '다이아몬드 고객 전용 선물'
+            ]
+        },
+        'topaz': {
+            title: '토파즈 코스',
+            time: '총 24시간 진행 (종일)',
+            price: '₩ 1,200,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
+            options: [
+                '풀 패키지 케어 (포함)', 
+                '토파즈 전용 특별 멤버십 혜택', 
+                '개인 맞춤형 여행 일정 조율'
+            ]
+        }
+    };
+    // **********************************************
+    // **********************************************
+
+
+    // DOM 요소 가져오기
+    const courseSelection = document.getElementById('course-selection');
+    const courseDetails = document.getElementById('course-details');
+    const detailTitle = document.getElementById('detail-title');
+    const detailTime = document.getElementById('detail-time');
+    const detailPrice = document.getElementById('detail-price');
+    const selectOptionsBtn = document.getElementById('select-options-btn');
+    const optionModal = document.getElementById('option-modal');
+    const optionsContent = document.getElementById('options-content');
+    const modalTitle = document.getElementById('modal-title');
+    
+    let currentCourseKey = null;
+
+    // 1. 코스 버튼 클릭 이벤트 처리 (첫 화면 -> 두 번째 화면)
+    courseSelection.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.classList.contains('course-btn')) {
+            // 버튼 활성화 상태 업데이트
+            document.querySelectorAll('.course-btn').forEach(btn => btn.classList.remove('active'));
+            target.classList.add('active');
+
+            currentCourseKey = target.dataset.course;
+            const data = courses[currentCourseKey];
+
+            // 상세 내용 업데이트
+            detailTitle.textContent = data.title;
+            detailTime.textContent = data.time;
+            detailPrice.textContent = data.price; 
+            
+            // 상세 정보 표시
+            courseDetails.style.display = 'block';
+        }
+    });
+
+    // 2. '코스 선택하고 옵션 보기' 버튼 클릭 이벤트 처리 (두 번째 화면 -> 세 번째 화면)
+    selectOptionsBtn.addEventListener('click', () => {
+        if (currentCourseKey) {
+            const data = courses[currentCourseKey];
+            
+            modalTitle.textContent = data.title + ' 옵션 선택';
+
+            // 옵션 목록을 HTML로 생성 (체크박스로 중복 선택 가능)
+            const optionListHtml = data.options.map((opt, index) => 
+                `<div class="option-item">
+                    <label>
+                        <input type="checkbox" id="option-${currentCourseKey}-${index}" name="course-option" value="${opt}"> 
+                        ${opt}
+                    </label>
+                </div>`
+            ).join('');
+            
+            optionsContent.innerHTML = optionListHtml || '<p style="text-align:center;">이 코스는 별도의 추가 옵션이 없습니다. 바로 진행 가능합니다.</p>';
+            
+            // 옵션 모달 표시
+            optionModal.style.display = 'flex'; 
+        }
+    });
+
+    // 3. 모달 닫기 기능 (세 번째 화면 닫기)
+    function closeOptionModal() {
+        // 실제 운영 시, 여기서 선택된 옵션들을 서버로 전송하는 등의 로직을 추가해야 합니다.
+        // 현재는 단순히 팝업을 닫는 역할만 합니다.
+        optionModal.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
