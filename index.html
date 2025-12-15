@@ -48,23 +48,19 @@
             background-position: center; /* 이미지가 중앙에 오도록 설정 */
         }
         
-        /* [수정됨]: header 스타일 제거 (header HTML 삭제로 불필요) */
         #course-list-view, #detail-view {
             position: relative;
             z-index: 1; 
         }
-
-        /* --- 2. 헤더 및 로고 스타일 (삭제됨) --- */
-        /* 삭제된 header 스타일 */
 
         /* --- 3. 코스 목록 스타일 --- */
         .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            /* [수정됨]: 헤더 삭제로 인해 상단 마진을 추가하여 위치 조정 */
-            margin-top: 20px; 
-            margin-bottom: 25px;
+            /* ★★★ 이 부분을 150px로 수정했습니다. ★★★ */
+            margin-top: 150px; 
+            margin-bottom: 30px; /* 코스 목록 제목 아래 여백 */
         }
         .course-item {
             background-color: rgba(255, 240, 245, 0.95); 
