@@ -251,10 +251,10 @@
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
         <button id="save-admin-changes-btn" onclick="saveAdminChanges()">✅ 편집 내용 저장</button>
         
-        <button id="capture-list-btn" onclick="captureFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">📸 목록 캡처 (PNG)</button>
+        <button id="capture-list-btn" onclick="captureFrameAsPNG('phone-frame-capture')">📸 목록 캡처</button>
         
         <button id="show-quote-btn" class="detail-only" onclick="showFinalQuote()">💸 견적서 보기</button>
-        <button id="capture-quote-btn" class="detail-only" onclick="captureQuoteAsPNG('DAISY_견적서_캡처.png')">📷 견적서 캡처 (PNG)</button>
+        <button id="capture-quote-btn" class="detail-only" onclick="captureQuoteAsPNG()">📷 견적서 캡처</button>
         <button id="save-options-btn" class="detail-only" onclick="saveUserSelectionsManually()">💾 현재 옵션 저장</button>
     </div>
 </div>
@@ -741,8 +741,8 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
 
-    // --- 캡처 기능 함수 1: 목록 캡처 ---
-    function captureFrameAsPNG(captureElementOrId, fileName) {
+    // --- 캡처 기능 함수 1: 목록 캡처 (새 탭에서 이미지 열기) ---
+    function captureFrameAsPNG(captureElementOrId) {
         let captureElement;
         
         if (typeof captureElementOrId === 'string') {
@@ -769,22 +769,20 @@
             windowHeight: captureElement.scrollHeight,
             scrollY: -captureElement.scrollTop
         }).then(canvas => {
-            // PNG 파일로 변환 및 다운로드 (이것이 캡처의 저장 행위입니다)
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            alert(`✅ ${fileName} 파일이 캡처되었습니다!`);
+            const dataURL = canvas.toDataURL('image/png');
+            // 새 탭을 열어 캡처된 이미지를 보여줍니다.
+            const newWindow = window.open();
+            newWindow.document.write('<img src="' + dataURL + '" alt="캡처된 이미지" style="max-width: 100%; height: auto;">');
+            newWindow.document.title = 'DAISY 목록 캡처';
+            alert(`✅ 목록 캡처가 완료되었습니다. 새 탭에서 이미지를 확인하고 저장해주세요.`);
         }).catch(err => {
             console.error("PNG 캡처 실패:", err);
             alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
         });
     }
 
-    // --- 캡처 기능 함수 2: 견적서 캡처 ---
-    function captureQuoteAsPNG(fileName) {
+    // --- 캡처 기능 함수 2: 견적서 캡처 (새 탭에서 이미지 열기) ---
+    function captureQuoteAsPNG() {
         if (!currentSelectedCourseKey) {
             alert("견적서 캡처를 위해 코스를 먼저 선택해 주세요.");
             return;
@@ -807,14 +805,13 @@
             // 캡처 후 다시 버튼 보이기
             modalButton.style.display = 'block';
             
-            // PNG 파일로 변환 및 다운로드 (이것이 캡처의 저장 행위입니다)
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            alert(`✅ ${fileName} 파일이 캡처되었습니다!`);
+            const dataURL = canvas.toDataURL('image/png');
+            // 새 탭을 열어 캡처된 이미지를 보여줍니다.
+            const newWindow = window.open();
+            newWindow.document.write('<img src="' + dataURL + '" alt="캡처된 견적서 이미지" style="max-width: 100%; height: auto;">');
+            newWindow.document.title = 'DAISY 견적서 캡처';
+            alert(`✅ 견적서 캡처가 완료되었습니다. 새 탭에서 이미지를 확인하고 저장해주세요.`);
+
 
         }).catch(err => {
             modalButton.style.display = 'block';
