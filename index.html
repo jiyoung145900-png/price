@@ -69,7 +69,7 @@
         }
 
         /* --- 3. 코스 목록 스타일 --- */
-        #course-list-view h3 {
+        .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
@@ -287,7 +287,11 @@
         </header>
 
         <div id="course-list-view">
-            <h3 style="color: #d11e8a; text-align: center;">💎 코스 목록 및 가격 💎</h3>
+            <h3 class="course-list-header">💎 코스 목록 및 가격 💎</h3>
+            
+            <div id="course-items-container">
+                </div>
+            
             <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ 현재 화면 PNG 다운로드</button>
         </div>
 
@@ -359,7 +363,8 @@
         document.getElementById('course-list-view').style.display = 'block';
         document.getElementById('detail-view').style.display = 'none';
 
-        let html = '<h3 style="color: #d11e8a; text-align: center;">💎 코스 목록 및 가격 💎</h3>';
+        const itemsContainer = document.getElementById('course-items-container');
+        let html = '';
         for (const key in coursesData) {
             const course = coursesData[key];
             html += `
@@ -372,11 +377,9 @@
                 </div>
             `;
         }
-        // 다운로드 버튼을 제외한 코스 목록만 삽입
-        document.getElementById('course-list-view').querySelector('h3').nextSibling.remove(); 
-        document.getElementById('course-list-view').querySelector('h3').insertAdjacentHTML('afterend', html);
+        itemsContainer.innerHTML = html;
         
-        // 다운로드 버튼은 따로 관리
+        // 코스 목록 뷰에 있는 다운로드 버튼 표시
         document.getElementById('download-list-btn').style.display = 'block'; 
 
         document.getElementById('phone-frame-capture').scrollTop = 0;
@@ -418,7 +421,7 @@
         });
         optionsList.innerHTML = html;
         
-        // --- ★★★ 오류 방지 및 초기 체크 상태 설정 ★★★ ---
+        // --- 초기 체크 상태 설정 ---
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach(cb => cb.checked = false);
 
         if (currentSelectedCourseKey === 'sapphire') {
@@ -511,8 +514,12 @@
                 if (captureElement.id === 'modal-capture-target' && node.classList.contains('modal-button')) {
                     return true;
                 }
-                // 코스 목록 뷰 캡처 시, 자기 자신(다운로드 버튼)을 제외
+                // 코스 목록 뷰 캡처 시, 다운로드 버튼을 제외
                 if (captureElement.id === 'phone-frame-capture' && node.id === 'download-list-btn') {
+                    return true;
+                }
+                // 디테일 뷰의 버튼도 캡처에서 제외
+                if (captureElement.id === 'phone-frame-capture' && node.classList.contains('action-btn')) {
                     return true;
                 }
                 return false;
@@ -538,9 +545,6 @@
         loadCoursesData();
         renderCourseList();
         document.getElementById('final-quote-modal').style.display = 'none';
-        
-        // 초기 로드 시 상세 뷰가 안 보이므로, 해당 다운로드 버튼도 숨겨야 함
-        document.getElementById('download-list-btn').style.display = 'block'; 
     };
 </script>
 
