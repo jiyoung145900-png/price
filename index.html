@@ -1,18 +1,3 @@
-사용자님, 업로드해주신 이미지를 참고하여 **최종 견적서 모달의 디자인을 더욱 강조**하고, **PNG 다운로드 시 깔끔하게 견적서 내용만 보이도록** 코드를 다시 한번 최적화했습니다.
-
-특히, 두 번째 첨부해주신 이미지(`image_0a56e2.png`)처럼 **총 합계 금액을 눈에 띄게 크게** 만들고, **견적서 테두리와 구분선을 데이지 컨셉에 맞게 핑크색 점선/실선**으로 강조했습니다.
-
-### ✨ 최종 견적서 모달 개선 사항
-
-1.  **디자인 통합:** 모달 내부의 색상과 구분선을 핑크 계열(`ff69b4`, `d11e8a`)로 통일하여 '데이지' 톤앤매너를 강화했습니다.
-2.  **금액 강조:** '총 합계 금액'을 **굵고 큰 빨간색 폰트**로 표시하여 최종 금액이 시각적으로 가장 강조되도록 했습니다. (두 번째 이미지와 유사하게)
-3.  **캡처 최적화:** `🖼️ 이 견적서 PNG 다운로드` 버튼을 누르면, **모달 내용 전체**가 캡처되며, \*\*하단의 2개 버튼(다운로드, 닫기)\*\*은 PNG 이미지에서 **완전히 제외**됩니다.
-
------
-
-## 💻 데이지 코스 최종 견적 페이지 코드 (최종 견적서 디자인 강화)
-
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -56,11 +41,7 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            /* * 이 부분에 배경 이미지를 설정하세요. 
-             * 예: background-image: url('YOUR_BACKGROUND_IMAGE_URL.jpg');
-             * background-size: cover;
-             * background-position: center; 
-            */
+            /* * 이 부분에 배경 이미지를 설정하세요. */
         }
         header, #course-list-view, #detail-view {
             position: relative;
@@ -87,9 +68,9 @@
             font-weight: 500;
         }
 
-        /* --- 3. 코스 목록 스타일 (생략) --- */
+        /* --- 3. 코스 목록 스타일 --- */
         #course-list-view h3 {
-            color: #5B5BFF; 
+            color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
             margin-bottom: 25px;
@@ -118,7 +99,7 @@
             margin-left: 15px;
         }
 
-        /* --- 4. 상세 뷰 및 옵션 스타일 (생략) --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 --- */
         #detail-view { 
             display: none; 
             flex-direction: column;
@@ -127,6 +108,18 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        #detail-view h3 {
+            color: #d11e8a;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+        #detail-view p {
+            font-size: 1.1em;
+            color: #333;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
         #options-list h3 {
             color: #5B5BFF;
             font-size: 1.3em;
@@ -134,6 +127,11 @@
             margin-bottom: 15px;
             border-left: 5px solid #ff69b4;
             padding-left: 10px;
+        }
+        .option-item input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-right: 15px;
+            accent-color: #ff69b4; 
         }
 
         /* 합계 금액 필드 */
@@ -153,7 +151,30 @@
             color: #ff0000;
         }
 
-        /* --- 5. 최종 견적 모달 (디자인 강화) --- */
+        /* --- 5. 최종 견적서 버튼 --- */
+        .action-btn { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 25px; 
+            border-radius: 10px; 
+            font-size: 1.2em; 
+            cursor: pointer; 
+            border: none;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        #quote-modal-btn { 
+            background-color: #ff69b4; 
+            color: white; 
+            box-shadow: 0 4px 0 #d11e8a;
+        }
+        #back-btn { 
+            background-color: #ccc; 
+            color: #333;
+            box-shadow: 0 4px 0 #999;
+        }
+
+        /* --- 6. 최종 견적 모달 (디자인 강화) --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -168,27 +189,20 @@
             width: 90%; 
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            /* 모달 테두리 핑크 강조 */
             border: 3px solid #ff69b4; 
         }
         .quote-header { 
             text-align: center; 
-            border-bottom: 3px solid #d11e8a; /* 헤더 구분선 */
+            border-bottom: 3px solid #d11e8a; 
             padding-bottom: 15px; 
             margin-bottom: 20px;
         }
         .quote-header h3 { color: #d11e8a; font-size: 1.8em;}
         
-        .quote-details { margin-bottom: 15px; }
-        .quote-details p {
-            font-size: 1.1em;
-            margin: 8px 0;
-        }
-        
         .quote-options { 
             padding: 10px 0; 
-            border-top: 1px dashed #ffb6c1; /* 옵션 위 점선 구분 */
-            border-bottom: 1px dashed #ffb6c1; /* 옵션 아래 점선 구분 */
+            border-top: 1px dashed #ffb6c1; 
+            border-bottom: 1px dashed #ffb6c1; 
             margin-bottom: 20px;
         }
         .quote-options h4 {
@@ -202,13 +216,12 @@
             padding-left: 0;
         }
         .quote-options li {
-             /* 핑크색 동그라미 대신 작은 데이지 아이콘 느낌 */
             list-style-type: none; 
             position: relative;
             padding-left: 20px;
         }
         .quote-options li::before {
-            content: "🌸"; /* 데이지 아이콘 */
+            content: "🌸"; 
             position: absolute;
             left: 0;
             font-size: 0.8em;
@@ -219,18 +232,12 @@
             text-align: center;
             margin-top: 30px;
             padding-top: 15px;
-            border-top: 2px solid #d11e8a; /* 최종 합계 위 실선 구분 */
-        }
-        .final-total p { 
-            font-size: 1.2em; 
-            margin-bottom: 5px; 
-            font-weight: bold;
-            color: #333;
+            border-top: 2px solid #d11e8a; 
         }
         .final-total .total-price { 
-            font-size: 3.5em; /* 매우 크게 */
+            font-size: 3.5em; 
             font-weight: 900; 
-            color: #ff0000; /* 빨간색으로 강력하게 강조 */
+            color: #ff0000; 
         }
 
         /* 모달 버튼 스타일 (캡처에서 제외됨) */
@@ -319,10 +326,8 @@
     let currentSelectedCourseKey = null;
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
-    const toPriceFormat = (str) => parseInt(String(str).replace(/[^0-9]/g, '')) || 0; 
 
     function loadCoursesData() {
-        // 관리자 기능을 위한 데이터 로드 (고객 화면에는 노출 안됨)
         const savedData = localStorage.getItem('daisyCoursesData');
         if (savedData) {
             coursesData = JSON.parse(savedData);
@@ -386,11 +391,17 @@
             `;
         });
         optionsList.innerHTML = html;
-        // 옵션 목록을 렌더링한 후, 이미지에 맞춰 사파이어 코스 옵션 체크 상태를 설정합니다.
-        // 이는 초기 로리플/애널 체크박스 예시를 반영하기 위함입니다.
+        
+        // --- ★★★ 오류 방지 및 초기 체크 상태 설정 ★★★ ---
+        // 모든 체크박스를 초기화합니다.
+        document.querySelectorAll('#options-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+        // 사파이어 코스 선택 시, 첨부 이미지와 같이 '애널' 옵션(index 1)을 기본 선택합니다.
         if (currentSelectedCourseKey === 'sapphire') {
-             // 로리플 (index 0)은 체크 X, 애널 (index 1)은 체크 O (첨부된 이미지 상태 반영)
-            document.getElementById('opt-1').checked = true;
+            const analCheckbox = document.getElementById('opt-1');
+            if (analCheckbox) {
+                analCheckbox.checked = true;
+            }
         }
     }
 
@@ -425,8 +436,10 @@
         document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
             const price = parseInt(checkbox.dataset.price);
             totalPrice += price;
-            const optionName = checkbox.nextElementSibling.textContent.trim().split('(')[0].trim();
-            // 최종 견적서 모달의 옵션 목록 구성
+            // 옵션 이름만 추출 (가격 부분 제외)
+            const optionLabel = checkbox.nextElementSibling.textContent.trim();
+            const optionName = optionLabel.substring(0, optionLabel.lastIndexOf('(')).trim();
+
             selectedOptionsHtml += `<li>• ${optionName} (₩ ${formatPrice(price)})</li>`;
         });
 
@@ -453,7 +466,7 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
 
-    // --- PNG 다운로드 기능 ---
+    // --- PNG 다운로드 기능 (모달 버튼 제외 포함) ---
     function downloadFrameAsPNG(isModalDownload) {
         let captureElement;
         let fileName;
@@ -469,7 +482,7 @@
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
-            // 모달 캡처 시, 클래스가 'modal-button'인 요소를 제외하여 하단 버튼을 숨김
+            // 캡처에서 클래스가 'modal-button'인 요소를 제외 (다운로드/닫기 버튼)
             ignoreElements: (node) => {
                 if (captureElement.id === 'modal-capture-target') {
                     return node.classList.contains('modal-button');
@@ -502,4 +515,3 @@
 
 </body>
 </html>
-```
