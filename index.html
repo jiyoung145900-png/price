@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY HOOKUPS | 코스 및 가격표 (관리자 편집 가능)</title>
+    <title>DAISY HOOKUPS | 코스 및 가격표 (관리자 편집 가능 - 최종)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* --- 1. 기본 설정 및 크기 지정 --- */
@@ -16,7 +16,7 @@
             background-color: #f0f2f5; 
         }
         .phone-container {
-            position: relative;
+            position: relative; /* ★★★ 절대 위치 기준점 설정 ★★★ */
             display: flex;
             justify-content: center;
         }
@@ -51,25 +51,28 @@
             z-index: 1; 
         }
 
-        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (우측 분리) --- */
+        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
+            position: absolute; /* ★★★ 절대 위치 지정 ★★★ */
+            top: 30px; /* 프레임 상단 기준 30px 아래 */
+            right: -170px; /* 프레임 오른쪽 기준 바깥으로 170px 이동 (버튼 너비 고려) */
+            z-index: 1001; /* 다른 요소 위에 항상 표시 */
             display: flex;
-            justify-content: flex-end; /* 오른쪽 끝으로 정렬 */
-            gap: 10px; /* 버튼 사이 간격 */
-            margin-bottom: 20px; 
-            margin-top: 0; 
+            flex-direction: column; /* 버튼들을 세로로 나열 */
+            gap: 10px; 
+            width: 150px; /* 버튼 그룹 너비 지정 */
         }
 
         /* 개별 버튼 스타일 조정 */
         #toggle-admin-btn, #download-list-btn {
-            padding: 8px 15px;
+            padding: 10px 10px; 
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9em;
-            width: auto; 
+            font-size: 1em;
+            width: 100%; /* 그룹 너비에 맞춤 */
             font-weight: bold;
-            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
             transition: background-color 0.2s;
         }
 
@@ -86,10 +89,10 @@
         /* 편집 모드일 때의 버튼 색상 */
         .admin-mode-active {
             background-color: #FF0000 !important;
-            box-shadow: 0 3px 0 #b30000 !important;
+            box-shadow: 0 4px 0 #b30000 !important;
         }
         
-        /* --- 3. 코스 목록 스타일 (버튼 그룹 아래로 내려옴) --- */
+        /* --- 3. 코스 목록 스타일 (다시 원래 마진 사용) --- */
         #admin-view {
             display: none; 
             background-color: #ffe0f7;
@@ -98,11 +101,8 @@
             margin-top: 20px;
             border: 2px dashed #d11e8a;
         }
-        #admin-view h3 {
-            color: #d11e8a;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        
+        /* 나머지 편집 모드 스타일은 유지 */
         .admin-course-item {
             background-color: #fff;
             padding: 15px;
@@ -148,7 +148,7 @@
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            margin-top: 50px; /* 버튼 그룹 아래로 내리기 위한 마진 */
+            margin-top: 150px; /* ★★★ 원래의 마진 복구 (버튼이 바깥으로 빠졌기 때문) ★★★ */
             margin-bottom: 30px; 
         }
         .course-item {
@@ -175,9 +175,7 @@
             margin-left: 15px;
         }
         
-        /* 코스 목록 다운로드 버튼 스타일 (삭제 - control-buttons로 이동) */
-        
-        /* --- 4. 상세 뷰 및 옵션 스타일 --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 (유지) --- */
         #detail-view { 
             display: none; 
             flex-direction: column;
@@ -186,6 +184,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        /* ... (나머지 상세 뷰 및 모달 스타일은 이전과 동일하게 유지) ... */
         #detail-view h3 {
             color: #d11e8a;
             font-size: 1.6em;
@@ -347,17 +346,12 @@
         
         <div id="main-background"></div>
         
-        <div id="control-buttons">
-            <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
-            <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ PNG 다운로드</button>
-        </div>
         <div id="course-list-view">
             <h3 class="course-list-header">💎 코스 목록 및 가격 💎</h3>
             
             <div id="course-items-container">
             </div>
-            
-            </div>
+        </div>
 
         <div id="admin-view">
             <h3>🔑 코스 및 옵션 편집 모드</h3>
@@ -385,7 +379,12 @@
             <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
         </div>
     </div>
-</div>
+    
+    <div id="control-buttons">
+        <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
+        <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ PNG 다운로드</button>
+    </div>
+    </div>
 
 <div id="final-quote-modal" class="modal-overlay">
     <div class="modal-content" id="modal-capture-target">
@@ -463,7 +462,7 @@
         
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
-        document.getElementById('download-list-btn').style.display = 'block'; // 일반 모드일 때 다운로드 버튼 표시
+        document.getElementById('download-list-btn').style.display = 'block'; 
 
         const itemsContainer = document.getElementById('course-items-container');
         let html = '';
@@ -503,7 +502,7 @@
             document.getElementById('admin-view').style.display = 'block';
             document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료';
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
-            document.getElementById('download-list-btn').style.display = 'none'; // 편집 모드일 때 다운로드 버튼 숨김
+            document.getElementById('download-list-btn').style.display = 'none'; 
             renderAdminEditor();
         } else {
             // 편집 모드 끄고 일반 목록으로 돌아가기
@@ -566,7 +565,7 @@
             coursesData[courseKey].options = [];
         }
         coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
-        renderAdminEditor(); // 데이터 변경 후 전체 재렌더링
+        renderAdminEditor();
     }
     
     function deleteOptionFromCourse(courseKey, index) {
@@ -574,9 +573,8 @@
             alert("최소한 하나의 옵션은 남겨야 합니다.");
             return;
         }
-        // coursesData에서 해당 옵션 삭제
         coursesData[courseKey].options.splice(index, 1);
-        renderAdminEditor(); // 데이터 변경 후 전체 재렌더링
+        renderAdminEditor();
     }
 
     function addNewCourse() {
@@ -639,7 +637,7 @@
         coursesData = newCoursesData;
         saveCoursesData(); 
         alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
-        toggleAdminMode(); // 저장 후 일반 모드로 자동 전환
+        toggleAdminMode();
     }
 
     // --- 사용자 상호작용 함수 (이전과 동일) ---
@@ -651,8 +649,6 @@
         document.getElementById('admin-view').style.display = 'none';
         document.getElementById('detail-view').style.display = 'flex';
         
-        // 버튼 그룹은 그대로 유지
-
         document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
         document.getElementById('detail-time-selected').textContent = course.time;
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
@@ -685,7 +681,7 @@
 
         if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
             optionsToPreCheck = currentCourseSaved.selectedOptions;
-        } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') { // '사파이어' 코스 기본 체크
+        } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') {
             optionsToPreCheck = [1]; 
         }
         
@@ -769,11 +765,11 @@
             scale: 2, 
             useCORS: true,
             ignoreElements: (node) => {
-                // 캡처에서 제외할 요소: 모달 버튼, 견적/뒤로가기 버튼, 그리고 상단 버튼 그룹의 요소 자체를 제외
-                if (node.classList.contains('modal-button') || node.classList.contains('action-btn') || node.parentElement.id === 'control-buttons') {
+                // 캡처에서 제외할 요소: 모달 버튼, 견적/뒤로가기 버튼 
+                if (node.classList.contains('modal-button') || node.classList.contains('action-btn')) {
                     return true;
                 }
-                // 코스 목록 뷰 캡처 시, control-buttons 전체를 제외
+                // control-buttons는 이제 프레임 밖에 있으므로 캡처 대상이 아니지만, 혹시 모를 내부 요소 캡처를 위해 확인
                 if (node.id === 'control-buttons') {
                     return true;
                 }
