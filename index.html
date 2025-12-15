@@ -3,92 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY 코스 및 가격표</title>
+    <title>DAISY HOOKUPS | 코스 및 가격표</title>
     <style>
-        /* --- 1. 기본 및 레이아웃 스타일 --- */
-        body { font-family: 'Malgun Gothic', 'Arial', sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 20px 10px; }
-        .container { max-width: 700px; margin: 0 auto; background-color: #fff; padding: 30px 20px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #ff69b4; /* 핑크 계열 */ margin-bottom: 30px; border-bottom: 3px solid #f0f0f0; padding-bottom: 15px; }
-        h2 { color: #5B5BFF; font-size: 1.4em; margin-bottom: 20px; text-align: center; }
-
-        /* --- 2. 코스 버튼 스타일 --- */
-        #course-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 30px; }
-        .course-btn { 
-            background-color: #ffe0f6; /* 연한 핑크 배경 */
-            color: #d11e8a; /* 진한 핑크 텍스트 */
-            border: 1px solid #ffb6c1; 
-            padding: 18px 10px; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        /* --- 1. 기본 설정 및 크기 지정 --- */
+        body { 
+            font-family: 'Malgun Gothic', 'Arial', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            background-color: #e6f7ff; /* 연한 하늘색 배경 */
         }
-        .course-btn:hover { background-color: #ffcce6; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .course-btn.active { background-color: #ff69b4; color: white; border: 1px solid #d11e8a; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .phone-frame {
+            width: 680px; /* 요청 사이즈 */
+            height: 1248px; /* 요청 사이즈 */
+            overflow-y: auto; /* 내용이 넘치면 스크롤 */
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
 
-        /* --- 3. 상세 정보 스타일 --- */
-        #course-details { 
-            padding: 25px; 
-            border: 2px solid #ffb6c1; 
-            border-radius: 10px; 
-            background-color: #fffafc; /* 매우 연한 핑크 */
+        /* --- 2. 데이지 테마 및 로고 스타일 --- */
+        header { 
             text-align: center; 
-            margin-bottom: 25px;
-            animation: fadeIn 0.5s;
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #ffb6c1; 
         }
-        #detail-title { color: #d11e8a; font-size: 1.8em; margin-top: 0; }
-        #detail-time { font-size: 1.1em; color: #555; margin-bottom: 10px; }
-        .price { font-size: 30px; color: #ff0000; font-weight: 900; margin: 15px 0; }
-        #select-options-btn { 
-            background-color: #5B5BFF; 
-            color: white; 
-            border: none; 
-            padding: 14px 30px; 
-            border-radius: 8px; 
-            font-size: 17px; 
-            cursor: pointer; 
-            transition: background-color 0.2s; 
-            margin-top: 20px;
+        .logo {
+            /* ★★★ 로고 파일명을 실제 파일명으로 수정하세요 ★★★ */
+            background-image: url('daisy_logo.jpg'); 
+            background-size: contain; 
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 100%;
+            height: 100px; /* 로고 높이 */
+            margin: 0 auto 10px;
         }
-        #select-options-btn:hover { background-color: #4444ff; }
+        h1 { color: #d11e8a; font-size: 1.8em; margin: 0; }
+        h2 { color: #5B5BFF; font-size: 1.2em; margin-top: 5px; }
 
-        /* --- 4. 모달 (팝업 옵션창) 스타일 --- */
-        .modal-overlay { 
-            display: none; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: rgba(0, 0, 0, 0.7); 
-            z-index: 1000; 
-            justify-content: center; align-items: center; 
-        }
-        .modal-content { 
-            background-color: white; 
-            padding: 25px; 
-            border-radius: 12px; 
-            width: 90%; 
-            max-width: 450px;
-            max-height: 90%;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .modal-content h3 { color: #d11e8a; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 1.5em; }
-        .option-item { margin-bottom: 15px; font-size: 1em; text-align: left; }
-        .option-item label { display: block; padding: 8px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; cursor: pointer; transition: background-color 0.1s; }
-        .option-item label:hover { background-color: #f0f0f0; }
-        .option-item input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
-        
-        .modal-content button { 
-            margin-top: 25px; 
-            background-color: #888; 
-            color: white; 
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 6px; 
-            cursor: pointer; 
+        /* --- 3. 코스 목록 (첫 화면) 스타일 --- */
+        #course-list-view { margin-bottom: 30px; }
+        .course-item {
+            background-color: #fffafc; 
+            border: 1px solid #ffb6c1;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
             transition: background-color 0.2s;
         }
-        .modal-content button:hover { background-color: #666; }
+        .course-item:hover { background-color: #ffe0f6; }
+        .course-item.active { background-color: #ff69b4; color: white; }
+        .course-title { font-weight: bold; font-size: 1.1em; color: #d11e8a; }
+        .course-item.active .course-title { color: white; }
+        .course-info { text-align: right; }
+        .course-info span { display: block; font-size: 0.9em; }
+        .course-price { font-size: 1.2em; font-weight: 900; color: #ff0000; margin-top: 5px; }
+        .course-item.active .course-price { color: #fff; }
+
+
+        /* --- 4. 상세 정보 및 옵션 (두 번째 화면) 스타일 --- */
+        #detail-view { 
+            padding: 20px; 
+            border: 2px solid #5B5BFF; 
+            border-radius: 10px; 
+            background-color: #f5f8ff; 
+            display: none; 
+            flex-direction: column;
+            animation: fadeIn 0.5s;
+        }
+        #options-list h3 { color: #5B5BFF; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-top: 0; }
+        .option-item label { display: block; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; cursor: pointer; }
+        .option-item label:hover { background-color: #f0f0f0; }
+        .option-item input[type="checkbox"]:checked + label { background-color: #e0f0ff; border-color: #5B5BFF; font-weight: bold; }
+        
+        /* 견적 결과 */
+        #quote-result { margin-top: 20px; padding: 15px; border: 1px dashed #d11e8a; background-color: #fff0f5; border-radius: 8px; }
+        #quote-result h4 { color: #d11e8a; margin-top: 0; }
+        .final-price { font-size: 1.5em; font-weight: 900; color: #ff0000; }
+
+        /* 버튼 */
+        .action-btn { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            border: none;
+            transition: background-color 0.2s;
+        }
+        #download-btn { background-color: #5B5BFF; color: white; }
+        #download-btn:hover { background-color: #4444ff; }
+        #back-btn { background-color: #ccc; color: #333; }
+        #back-btn:hover { background-color: #bbb; }
+        
+        /* --- 5. 관리자 모드 스타일 --- */
+        .admin-toggle { text-align: center; margin-bottom: 20px; }
+        #admin-mode-btn { background-color: orange; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        
+        #admin-panel { 
+            display: none; 
+            padding: 20px; 
+            border: 2px solid orange; 
+            background-color: #fff8e1; 
+            border-radius: 10px; 
+            margin-bottom: 20px;
+        }
+        .admin-panel-item label { display: block; font-weight: bold; margin-top: 10px; }
+        .admin-panel-item input[type="text"], .admin-panel-item textarea {
+            width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        #save-btn { background-color: green; color: white; margin-top: 20px; }
+        #save-btn:hover { background-color: darkgreen; }
+
 
         /* 애니메이션 */
         @keyframes fadeIn {
@@ -99,161 +135,287 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>DAISY HOOKUPS</h1>
-    <h2>💎 코스를 선택해 주세요 💎</h2>
+<div class="phone-frame">
     
-    <div id="course-selection">
-        <button class="course-btn" data-course="sapphire">사파이어</button>
-        <button class="course-btn" data-course="emerald">에메랄드</button>
-        <button class="course-btn" data-course="ruby">루비</button>
-        <button class="course-btn" data-course="diamond">다이아몬드</button>
-        <button class="course-btn" data-course="topaz">토파즈</button>
+    <header>
+        <div class="logo"></div>
+        <h1>DAISY HOOKUPS</h1>
+        <h2>FIND YOUR MATCH</h2>
+    </header>
+
+    <div class="admin-toggle">
+        <button id="admin-mode-btn" onclick="toggleAdminMode()">⚙️ 관리자 모드 토글</button>
     </div>
 
-    <div id="course-details" style="display: none;">
-        <h3 id="detail-title"></h3>
-        <p id="detail-time"></p>
-        <div class="price" id="detail-price"></div>
+    <div id="admin-panel">
+        <h3>관리자 패널 - 가격 및 옵션 수정</h3>
+        <p>코드를 수정하지 않고도 여기서 가격과 옵션을 변경하고 저장할 수 있습니다.</p>
         
-        <button id="select-options-btn">✨ 이 코스 선택하고 옵션 보기</button>
-    </div>
-</div>
-
-<div id="option-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 id="modal-title"></h3>
-        <p style="text-align: center;">필요한 옵션을 선택해 주세요. (중복 선택 가능)</p>
-        <div id="options-content">
+        <div id="admin-inputs">
             </div>
-        <button onclick="closeOptionModal()">선택 완료 및 닫기</button>
+        
+        <button id="save-btn" class="action-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
+    </div>
+
+
+    <div id="course-list-view">
+        <h3 style="color: #d11e8a; text-align: center;">💎 코스 목록 및 가격 💎</h3>
+        </div>
+
+
+    <div id="detail-view">
+        <h3 id="detail-title-selected" style="color: #5B5BFF; text-align: center;"></h3>
+        <p style="text-align: center;">[<span id="detail-time-selected"></span> | <span id="detail-price-selected"></span>]</p>
+
+        <div id="options-list">
+            <h3>선택 옵션 추가 (복수 선택 가능)</h3>
+            </div>
+
+        <div id="quote-result">
+            <h4>💰 최종 견적 금액</h4>
+            <div class="final-price">₩ <span id="calculated-price">0</span></div>
+            <p style="font-size: 0.9em; color: #555;">(선택하신 기본 코스 + 옵션 금액 합산)</p>
+        </div>
+
+        <button id="download-btn" class="action-btn" onclick="downloadQuote()">⬇️ 최종 견적 다운로드</button>
+        <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
     </div>
 </div>
 
 <script>
     // **********************************************
-    // ★★★ 1. 코스 가격 및 옵션 데이터를 여기에 수정/입력하세요 ★★★
+    // ★★★ 1. 초기 코스 데이터 (가격과 옵션은 관리자 모드에서 수정 가능) ★★★
     // **********************************************
-    const courses = {
-        'sapphire': {
-            title: '사파이어 코스',
-            time: '총 1시간 진행',
-            price: '₩ 100,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
-            options: [
-                '기본 케어 (무료)', 
-                '음료 서비스 추가 (+1만원)', 
-                '시간 연장 가능 여부 문의' 
-            ]
-        },
-        'emerald': {
-            title: '에메랄드 코스',
-            time: '총 2시간 진행',
-            price: '₩ 180,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
-            options: [
-                '프리미엄 공간 선택', 
-                '맞춤형 BGM 서비스', 
-                '에메랄드 전용 특별 간식'
-            ]
-        },
-        'ruby': {
-            title: '루비 코스',
-            time: '총 4시간 진행',
-            price: '₩ 350,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
-            options: [
-                '장소 변경 옵션 (추가금 발생)', 
-                'VIP 대기 시간 서비스', 
-                '루비 전용 샴페인 서비스'
-            ]
-        },
-        'diamond': {
-            title: '다이아몬드 코스',
-            time: '총 8시간 진행',
-            price: '₩ 600,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
-            options: [
-                '24시간 컨시어지 서비스', 
-                '숙박 관련 편의 제공', 
-                '다이아몬드 고객 전용 선물'
-            ]
-        },
-        'topaz': {
-            title: '토파즈 코스',
-            time: '총 24시간 진행 (종일)',
-            price: '₩ 1,200,000', // ★★★ 여기에 가격을 넣어주세요 ★★★
-            options: [
-                '풀 패키지 케어 (포함)', 
-                '토파즈 전용 특별 멤버십 혜택', 
-                '개인 맞춤형 여행 일정 조율'
-            ]
-        }
+    const INITIAL_COURSES = {
+        'sapphire': { title: '사파이어', time: '1시간', basePrice: 100000, options: [{name: '추가 음료', price: 10000}, {name: '간단한 스낵', price: 5000}] },
+        'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
+        'ruby': { title: '루비', time: '4시간', basePrice: 350000, options: [{name: '장소 변경 협의', price: 50000}, {name: '루비 전용 샴페인', price: 80000}] },
+        'diamond': { title: '다이아몬드', time: '8시간', basePrice: 600000, options: [{name: '24시간 컨시어지', price: 100000}, {name: '최고급 케어', price: 50000}] },
+        'topaz': { title: '토파즈', time: '24시간', basePrice: 1200000, options: [{name: '종일 풀 패키지', price: 0}, {name: '토파즈 전용 특전', price: 150000}] }
     };
-    // **********************************************
-    // **********************************************
-
-
-    // DOM 요소 가져오기
-    const courseSelection = document.getElementById('course-selection');
-    const courseDetails = document.getElementById('course-details');
-    const detailTitle = document.getElementById('detail-title');
-    const detailTime = document.getElementById('detail-time');
-    const detailPrice = document.getElementById('detail-price');
-    const selectOptionsBtn = document.getElementById('select-options-btn');
-    const optionModal = document.getElementById('option-modal');
-    const optionsContent = document.getElementById('options-content');
-    const modalTitle = document.getElementById('modal-title');
     
-    let currentCourseKey = null;
+    let coursesData; // 실제 사용될 데이터를 담을 변수
+    let currentSelectedCourseKey = null;
 
-    // 1. 코스 버튼 클릭 이벤트 처리 (첫 화면 -> 두 번째 화면)
-    courseSelection.addEventListener('click', (event) => {
-        const target = event.target;
-        if (target.classList.contains('course-btn')) {
-            // 버튼 활성화 상태 업데이트
-            document.querySelectorAll('.course-btn').forEach(btn => btn.classList.remove('active'));
-            target.classList.add('active');
+    // --- 유틸리티 함수 ---
+    const formatPrice = (price) => price.toLocaleString('ko-KR');
+    const toPriceFormat = (str) => parseInt(str.replace(/[^0-9]/g, '')) || 0; // 문자열을 숫자로 변환
 
-            currentCourseKey = target.dataset.course;
-            const data = courses[currentCourseKey];
-
-            // 상세 내용 업데이트
-            detailTitle.textContent = data.title;
-            detailTime.textContent = data.time;
-            detailPrice.textContent = data.price; 
-            
-            // 상세 정보 표시
-            courseDetails.style.display = 'block';
+    // --- 데이터 로드 및 저장 ---
+    function loadCoursesData() {
+        const savedData = localStorage.getItem('daisyCoursesData');
+        if (savedData) {
+            coursesData = JSON.parse(savedData);
+        } else {
+            coursesData = INITIAL_COURSES;
+            saveCoursesData(); // 초기 데이터 저장
         }
-    });
-
-    // 2. '코스 선택하고 옵션 보기' 버튼 클릭 이벤트 처리 (두 번째 화면 -> 세 번째 화면)
-    selectOptionsBtn.addEventListener('click', () => {
-        if (currentCourseKey) {
-            const data = courses[currentCourseKey];
-            
-            modalTitle.textContent = data.title + ' 옵션 선택';
-
-            // 옵션 목록을 HTML로 생성 (체크박스로 중복 선택 가능)
-            const optionListHtml = data.options.map((opt, index) => 
-                `<div class="option-item">
-                    <label>
-                        <input type="checkbox" id="option-${currentCourseKey}-${index}" name="course-option" value="${opt}"> 
-                        ${opt}
-                    </label>
-                </div>`
-            ).join('');
-            
-            optionsContent.innerHTML = optionListHtml || '<p style="text-align:center;">이 코스는 별도의 추가 옵션이 없습니다. 바로 진행 가능합니다.</p>';
-            
-            // 옵션 모달 표시
-            optionModal.style.display = 'flex'; 
-        }
-    });
-
-    // 3. 모달 닫기 기능 (세 번째 화면 닫기)
-    function closeOptionModal() {
-        // 실제 운영 시, 여기서 선택된 옵션들을 서버로 전송하는 등의 로직을 추가해야 합니다.
-        // 현재는 단순히 팝업을 닫는 역할만 합니다.
-        optionModal.style.display = 'none';
     }
+
+    function saveCoursesData() {
+        localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
+    }
+
+    // --- 뷰 전환 및 렌더링 ---
+    function renderCourseList() {
+        const listView = document.getElementById('course-list-view');
+        const detailView = document.getElementById('detail-view');
+        listView.style.display = 'block';
+        detailView.style.display = 'none';
+
+        let html = '';
+        for (const key in coursesData) {
+            const course = coursesData[key];
+            html += `
+                <div class="course-item" data-key="${key}" onclick="selectCourse('${key}')">
+                    <div class="course-title">${course.title} 코스</div>
+                    <div class="course-info">
+                        <span>${course.time}</span>
+                        <span class="course-price">₩ ${formatPrice(course.basePrice)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        listView.innerHTML = `<h3 style="color: #d11e8a; text-align: center;">💎 코스 목록 및 가격 💎</h3>${html}`;
+    }
+
+    function selectCourse(key) {
+        currentSelectedCourseKey = key;
+        const course = coursesData[key];
+        
+        // 뷰 전환
+        document.getElementById('course-list-view').style.display = 'none';
+        const detailView = document.getElementById('detail-view');
+        detailView.style.display = 'flex';
+        
+        // 상세 정보 업데이트
+        document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
+        document.getElementById('detail-time-selected').textContent = course.time;
+        document.getElementById('detail-price-selected').textContent = '₩ ' + formatPrice(course.basePrice);
+        
+        // 옵션 목록 렌더링
+        renderOptions(course.options);
+        calculateQuote(); // 초기 견적 계산 (옵션 0원)
+        
+        // 모든 체크박스 초기화
+        document.querySelectorAll('#options-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+
+    function renderOptions(options) {
+        const optionsList = document.getElementById('options-list');
+        let html = '<h3>선택 옵션 추가 (복수 선택 가능)</h3>';
+        
+        options.forEach((opt, index) => {
+            html += `
+                <div class="option-item">
+                    <input type="checkbox" id="opt-${index}" data-price="${opt.price}" onchange="calculateQuote()"> 
+                    <label for="opt-${index}">
+                        ${opt.name} (<span style="color:red;">+${formatPrice(opt.price)}원</span>)
+                    </label>
+                </div>
+            `;
+        });
+        optionsList.innerHTML = html;
+    }
+
+    function showCourseList() {
+        renderCourseList();
+        document.getElementById('detail-view').style.display = 'none';
+    }
+
+    // --- 견적 계산 및 다운로드 ---
+    function calculateQuote() {
+        if (!currentSelectedCourseKey) return;
+
+        const course = coursesData[currentSelectedCourseKey];
+        let totalPrice = course.basePrice;
+        let selectedOptions = [];
+
+        // 선택된 옵션 합산
+        document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
+            const price = parseInt(checkbox.dataset.price);
+            totalPrice += price;
+            const optionName = checkbox.nextElementSibling.textContent.trim();
+            selectedOptions.push({name: optionName, price: price});
+        });
+
+        document.getElementById('calculated-price').textContent = formatPrice(totalPrice);
+    }
+
+    function downloadQuote() {
+        if (!currentSelectedCourseKey) return;
+        
+        const course = coursesData[currentSelectedCourseKey];
+        let totalPrice = course.basePrice;
+        let quoteText = `====================================\n`;
+        quoteText += `💎 DAISY HOOKUPS 견적서 💎\n`;
+        quoteText += `====================================\n`;
+        quoteText += `▶ 코스: ${course.title} 코스\n`;
+        quoteText += `▶ 시간: ${course.time}\n`;
+        quoteText += `▶ 기본 가격: ₩ ${formatPrice(course.basePrice)}\n`;
+        quoteText += `------------------------------------\n`;
+        quoteText += `▶ 선택 옵션:\n`;
+
+        let optionsSummary = '';
+        document.querySelectorAll('#options-list input[type="checkbox"]:checked').forEach(checkbox => {
+            const price = parseInt(checkbox.dataset.price);
+            totalPrice += price;
+            const optionName = checkbox.nextElementSibling.textContent.trim();
+            optionsSummary += `  - ${optionName}\n`;
+        });
+        
+        quoteText += optionsSummary || '  - 없음\n';
+        quoteText += `------------------------------------\n`;
+        quoteText += `💰 최종 견적 금액: ₩ ${formatPrice(totalPrice)}\n`;
+        quoteText += `====================================\n`;
+        quoteText += `*문의는 실장님께 직접 부탁드립니다. 감사합니다.\n`;
+
+        // TXT 파일 다운로드
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(quoteText));
+        element.setAttribute('download', `${course.title}_견적서.txt`);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+
+        alert("최종 견적서가 TXT 파일로 다운로드되었습니다.");
+    }
+
+    // --- 관리자 모드 ---
+    function toggleAdminMode() {
+        const adminPanel = document.getElementById('admin-panel');
+        if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
+            adminPanel.style.display = 'block';
+            renderAdminPanel();
+        } else {
+            adminPanel.style.display = 'none';
+        }
+    }
+
+    function renderAdminPanel() {
+        const adminInputs = document.getElementById('admin-inputs');
+        let html = '';
+        for (const key in coursesData) {
+            const course = coursesData[key];
+            
+            // 옵션을 JSON 문자열로 변환하여 textarea에 표시
+            const optionsJson = JSON.stringify(course.options, null, 2); 
+
+            html += `
+                <hr>
+                <h4>${course.title} 코스 설정</h4>
+                <div class="admin-panel-item">
+                    <label>기본 가격 (숫자만 입력):</label>
+                    <input type="text" id="admin-price-${key}" value="${course.basePrice}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
+                <div class="admin-panel-item">
+                    <label>옵션 목록 (JSON 형식 - 이름: name, 가격: price):</label>
+                    <textarea id="admin-options-${key}" rows="5">${optionsJson}</textarea>
+                </div>
+            `;
+        }
+        adminInputs.innerHTML = html;
+    }
+
+    function saveAdminData() {
+        try {
+            const newCoursesData = {};
+            for (const key in coursesData) {
+                const newPrice = toPriceFormat(document.getElementById(`admin-price-${key}`).value);
+                const newOptionsJson = document.getElementById(`admin-options-${key}`).value;
+                const newOptions = JSON.parse(newOptionsJson); // JSON 파싱
+
+                // 데이터 형식 검증
+                if (!Array.isArray(newOptions) || newOptions.some(opt => typeof opt.name !== 'string' || typeof opt.price !== 'number')) {
+                    throw new Error(`${coursesData[key].title} 코스 옵션 형식이 잘못되었습니다. (배열 형태, name: 문자열, price: 숫자 확인)`);
+                }
+
+                newCoursesData[key] = {
+                    ...coursesData[key], // 시간과 타이틀은 유지
+                    basePrice: newPrice,
+                    options: newOptions
+                };
+            }
+
+            coursesData = newCoursesData;
+            saveCoursesData(); // 로컬 스토리지에 저장
+            renderCourseList(); // 고객 화면 새로고침
+            alert('✅ 관리자 설정이 성공적으로 저장되었습니다!');
+
+        } catch (e) {
+            alert('❌ 저장 실패: ' + e.message);
+        }
+    }
+
+
+    // --- 초기화 ---
+    window.onload = () => {
+        loadCoursesData();
+        renderCourseList();
+        // 옵션 및 가격 구조 예시를 보여주기 위해 관리자 모드 열기 (필요 없으면 주석 처리)
+        // toggleAdminMode(); 
+    };
 </script>
 
 </body>
