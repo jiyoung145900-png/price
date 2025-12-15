@@ -80,7 +80,6 @@
 
         /* 버튼별 색상 설정 */
         #toggle-admin-btn { background-color: #5B5BFF; color: white; }
-        /* [추가] 편집 저장 버튼 스타일 */
         #save-admin-changes-btn {
             background-color: #4CAF50; /* 녹색 */
             color: white;
@@ -225,8 +224,8 @@
             <h3>🔑 코스 및 옵션 편집 모드</h3>
             <div id="admin-course-editor">
                 </div>
-            <button class="admin-button-group" style="background-color:#5B5BFF; color:white;" onclick="addNewCourse()">➕ 새 코스 추가</button>
-            </div>
+            <button class="admin-button-group" style="background-color:#5B5BFF; color:white;" onclick="addNewCourse(event)">➕ 새 코스 추가</button>
+        </div>
 
 
         <div id="detail-view">
@@ -289,6 +288,7 @@
     let currentSelectedCourseKey = null;
     let isEditingMode = false;
     let newCourseIndex = 0; 
+    const frame = document.getElementById('phone-frame-capture');
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
@@ -368,12 +368,10 @@
         document.getElementById('detail-view').style.display = 'none';
         document.getElementById('admin-view').style.display = 'none'; 
         
-        // [수정] 편집 모드 전환/종료 버튼 상태 업데이트
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
         document.getElementById('download-list-btn').style.display = 'block'; 
         
-        // [수정] 편집 저장 버튼 숨김
         document.getElementById('save-admin-changes-btn').style.display = 'none';
 
         // 상세 페이지 전용 버튼 숨김
@@ -418,46 +416,68 @@
             document.getElementById('detail-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'block';
             
-            // [수정] 편집 모드 버튼 상태 변경 및 저장 버튼 노출
             document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료 (미저장)';
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
-            document.getElementById('save-admin-changes-btn').style.display = 'block'; // 저장 버튼 노출
+            document.getElementById('save-admin-changes-btn').style.display = 'block'; 
 
             document.getElementById('download-list-btn').style.display = 'none'; 
             
-            // 상세 페이지 전용 버튼 숨김
             document.getElementById('show-quote-btn').classList.add('detail-only');
             document.getElementById('download-quote-btn-external').classList.add('detail-only');
             document.getElementById('save-options-btn').classList.add('detail-only');
 
             renderAdminEditor();
         } else {
-             // 편집 모드 종료 시, 저장하지 않고 그냥 돌아갈지 묻는 것이 좋습니다.
             if(confirm("편집 모드를 저장하지 않고 종료하시겠습니까? (저장하려면 '취소'를 누르고 '편집 내용 저장'을 누르세요)")) {
-                loadCoursesData(); // 저장하지 않을 경우 마지막 저장 상태로 복원
+                loadCoursesData(); 
                 renderCourseList();
             } else {
-                // 사용자가 취소를 누르면 모드 유지
                 isEditingMode = true; 
             }
         }
     }
 
+    /**
+     * [수정] 옵션 삭제 시 스크롤 위치 유지 및 재렌더링
+     */
     function deleteOptionFromCourse(courseKey, index) {
         if (coursesData[courseKey].options.length === 1) {
             alert("최소한 하나의 옵션은 남겨야 합니다.");
             return;
         }
+        // 현재 스크롤 위치 저장
+        const scrollPosition = document.getElementById('phone-frame-capture').scrollTop;
+        
         coursesData[courseKey].options.splice(index, 1);
-        renderAdminEditor(); 
+        
+        renderAdminEditor();
+        
+        // 스크롤 위치 복원
+        document.getElementById('phone-frame-capture').scrollTop = scrollPosition;
     }
     
-    function addOptionToCourse(courseKey) {
+    /**
+     * [수정] 옵션 추가 시 해당 코스 위치로 스크롤
+     */
+    function addOptionToCourse(event, courseKey) {
+        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+
         if (!coursesData[courseKey].options) {
             coursesData[courseKey].options = [];
         }
         coursesData[courseKey].options.push({name: '새 옵션', price: 0}); 
+        
         renderAdminEditor(); 
+
+        // 새로 추가된 코스의 마지막 옵션 위치로 스크롤
+        const courseElement = document.querySelector(`.admin-course-item[data-key="${courseKey}"]`);
+        if (courseElement) {
+            const optionsContainer = courseElement.querySelector('.admin-options-container');
+            if (optionsContainer.lastElementChild) {
+                // 부드러운 스크롤 효과
+                optionsContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        }
     }
 
 
@@ -491,13 +511,13 @@
             
             html += `
                     </div>
-                    <button style="background-color:#4CAF50; color:white; width:100%;" onclick="addOptionToCourse('${key}')">➕ 옵션 추가</button>
-                    <button style="background-color:#F44336; color:white; margin-top:10px;" onclick="deleteCourse('${key}')">❌ 코스 삭제</button>
+                    <button style="background-color:#4CAF50; color:white; width:100%;" onclick="addOptionToCourse(event, '${key}')">➕ 옵션 추가</button>
+                    <button style="background-color:#F44336; color:white; margin-top:10px;" onclick="deleteCourse(event, '${key}')">❌ 코스 삭제</button>
                 </div>
             `;
         }
         editorContainer.innerHTML = html;
-        document.getElementById('phone-frame-capture').scrollTop = 0;
+        // renderAdminEditor 자체는 스크롤을 맨 위로 올리지 않도록 호출부에 맡김
     }
 
     function renderAdminOptionItem(courseKey, index, name, price) {
@@ -510,7 +530,12 @@
         `;
     }
 
-    function addNewCourse() {
+    /**
+     * [수정] 새 코스 추가 시 맨 아래로 스크롤
+     */
+    function addNewCourse(event) {
+        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+        
         const keyPrefix = 'custom';
         let newKey = keyPrefix + newCourseIndex;
         while(coursesData.hasOwnProperty(newKey)) {
@@ -525,23 +550,38 @@
             options: [{name: '기본 옵션', price: 0}]
         };
         newCourseIndex++; 
+        
         renderAdminEditor();
+        
+        // 새로 추가된 코스 위치로 부드러운 스크롤
+        const newCourseElement = document.querySelector(`.admin-course-item[data-key="${newKey}"]`);
+        if (newCourseElement) {
+            newCourseElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
     }
     
-    function deleteCourse(courseKey) {
+    /**
+     * [수정] 코스 삭제 시 스크롤 위치 유지
+     */
+    function deleteCourse(event, courseKey) {
+        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+
         if (Object.keys(coursesData).length === 1) {
             alert("최소한 하나의 코스는 남겨야 합니다.");
             return;
         }
+        
+        const scrollPosition = document.getElementById('phone-frame-capture').scrollTop;
+
         if (confirm(`정말로 코스 [${coursesData[courseKey].title}]을 삭제하시겠습니까?`)) {
             delete coursesData[courseKey];
             renderAdminEditor();
+            
+            // 스크롤 위치 복원
+            document.getElementById('phone-frame-capture').scrollTop = scrollPosition;
         }
     }
 
-    /**
-     * [수정] 외부 버튼에서 호출되며, 변경 사항을 저장하고 편집 모드를 종료합니다.
-     */
     function saveAdminChanges() {
         const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
         const newCoursesData = {};
@@ -585,7 +625,6 @@
         saveCoursesData(); 
         alert("✅ 코스 데이터가 성공적으로 저장되었습니다!");
         
-        // 저장 후 편집 모드 종료 상태로 UI 업데이트
         isEditingMode = false;
         renderCourseList();
     }
@@ -603,12 +642,10 @@
         document.getElementById('detail-time-selected').textContent = course.time;
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
         
-        // 상세 페이지 전용 버튼 노출
         document.getElementById('show-quote-btn').classList.remove('detail-only');
         document.getElementById('download-quote-btn-external').classList.remove('detail-only');
         document.getElementById('save-options-btn').classList.remove('detail-only');
         
-        // [수정] 편집 저장 버튼 숨김 (일반 모드이므로)
         document.getElementById('save-admin-changes-btn').style.display = 'none';
         
         renderOptions(course.options);
@@ -632,7 +669,6 @@
         });
         optionsList.innerHTML = html;
         
-        // 저장된 사용자 선택 상태 로드 및 체크
         const savedSelectionsRaw = localStorage.getItem('daisyUserSelections');
         let savedSelections = {};
         try {
@@ -805,7 +841,11 @@
         loadCoursesData();
         renderCourseList();
         document.getElementById('final-quote-modal').style.display = 'none';
-        document.getElementById('save-admin-changes-btn').style.display = 'none'; // 초기 로드 시 숨김
+        // HTML 요소가 로드된 후, 버튼 참조를 다시 가져와 숨깁니다.
+        const saveAdminBtn = document.getElementById('save-admin-changes-btn');
+        if (saveAdminBtn) {
+            saveAdminBtn.style.display = 'none'; 
+        }
     };
 </script>
 
