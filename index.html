@@ -58,9 +58,9 @@
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            /* ★★★ 이 부분을 150px로 수정했습니다. ★★★ */
-            margin-top: 180px; 
-            margin-bottom: 30px; /* 코스 목록 제목 아래 여백 */
+            /* 150px로 메뉴를 내리기 위해 변경되었습니다. */
+            margin-top: 150px; 
+            margin-bottom: 30px; 
         }
         .course-item {
             background-color: rgba(255, 240, 245, 0.95); 
@@ -256,10 +256,7 @@
             font-weight: bold;
             box-shadow: 0 4px 0 #4a4adf; 
         }
-        #modal-download-btn {
-            background-color: #ff69b4; 
-            box-shadow: 0 4px 0 #d11e8a;
-        }
+        /* 삭제된 #modal-download-btn 스타일 */
         #modal-close-btn { 
             background-color: #ccc; 
             color: #333; 
@@ -319,8 +316,6 @@
             <div class="total-price">₩ <span id="modal-total-price">0</span></div>
         </div>
         
-        <button id="modal-download-btn" class="modal-button" onclick="downloadFrameAsPNG(true)">⬇️ 견적서 PNG 다운로드</button>
-
         <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
@@ -527,9 +522,11 @@
         let fileName;
         
         if (isModalDownload) {
-            // 견적서 모달 캡처
+            // 견적서 모달 캡처 (이 기능은 버튼이 삭제되어 더 이상 사용되지 않지만, 다른 캡처를 위해 함수는 남겨둡니다.)
             captureElement = document.getElementById('modal-capture-target'); 
             fileName = 'DAISY_최종견적서.png';
+            alert("죄송합니다. 견적서 다운로드 기능은 요청에 따라 제거되었습니다.");
+            return; // 모달 다운로드 요청 시 종료
         } else {
             // 코스 목록 뷰 캡처 (phone-frame-capture 전체)
             captureElement = document.getElementById('phone-frame-capture'); 
