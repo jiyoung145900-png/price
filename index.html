@@ -19,7 +19,6 @@
         }
         
         /* [핵심 수정: 캡처 시 전체 화면을 감싸는 래퍼 스타일] */
-        /* 이 스타일은 견적서 캡처 시에만 body 직전에 동적으로 추가됩니다. */
         .body-capture-wrapper {
             /* 캡처할 때의 전체 화면 크기 (모든 스크롤을 방지) */
             position: fixed; /* 절대 고정 */
@@ -27,7 +26,7 @@
             width: 100%; height: 100%;
             overflow: hidden; /* 스크롤바 방지 */
             background-color: #f0f2f5; /* body 배경색과 동일하게 설정 */
-            z-index: 1002; /* 모달(1000)보다 높고, 제어 버튼(1001)과 분리 */
+            z-index: 1002; 
         }
         .body-capture-wrapper .phone-container {
             /* 폰 컨테이너를 캡처 래퍼 중앙에 고정 */
@@ -35,7 +34,6 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            /* 캡처 시 불필요한 배경 요소를 숨기거나 제거 */
         }
         
         /* 캡처 시에는 제어 버튼 숨김 */
@@ -45,7 +43,7 @@
 
 
         .phone-container {
-            position: relative; /* ★★★ 절대 위치 기준점 설정 ★★★ */
+            position: relative; 
             display: flex;
             justify-content: center;
         }
@@ -82,14 +80,14 @@
 
         /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
-            position: absolute; /* ★★★ 절대 위치 지정 ★★★ */
-            top: 30px; /* 프레임 상단 기준 30px 아래 */
-            right: -170px; /* 프레임 오른쪽 기준 바깥으로 170px 이동 (버튼 너비 고려) */
-            z-index: 1001; /* 다른 요소 위에 항상 표시 */
+            position: absolute; 
+            top: 30px; 
+            right: -170px; 
+            z-index: 1001; 
             display: flex;
-            flex-direction: column; /* 버튼들을 세로로 나열 */
+            flex-direction: column; 
             gap: 10px; 
-            width: 150px; /* 버튼 그룹 너비 지정 */
+            width: 150px; 
         }
 
         /* 개별 버튼 스타일 조정 */
@@ -99,7 +97,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 1em;
-            width: 100%; /* 그룹 너비에 맞춤 */
+            width: 100%; 
             font-weight: bold;
             box-shadow: 0 4px 0 rgba(0,0,0,0.3);
             transition: background-color 0.2s;
@@ -283,7 +281,7 @@
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: rgba(0, 0, 0, 0.7); /* 흐릿한 배경 */
+            background-color: rgba(0, 0, 0, 0.7); 
             z-index: 1000; 
             justify-content: center; align-items: center; 
         }
@@ -451,22 +449,32 @@
     let coursesData; 
     let currentSelectedCourseKey = null;
     let isEditingMode = false;
-    let newCourseIndex = 0; 
-    let originalBodyChildren = []; // 모달 캡처를 위해 body의 원래 내용을 저장할 배열
+    let newCourseIndex = 0; // [수정] 이 변수를 로컬 스토리지에 함께 저장하여 유지해야 함
+    let originalBodyChildren = []; 
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
     function loadCoursesData() {
         const savedData = localStorage.getItem('daisyCoursesData');
+        const savedIndex = localStorage.getItem('daisyNewCourseIndex'); // [추가] 인덱스 로드
+
         if (savedData) {
             coursesData = JSON.parse(savedData);
         } else {
             coursesData = INITIAL_COURSES;
         }
+
+        if (savedIndex) {
+            newCourseIndex = parseInt(savedIndex); // [추가] 인덱스 로드
+        } else {
+            newCourseIndex = 0;
+        }
     }
     
+    // [수정] 인덱스도 함께 저장하도록 업데이트
     function saveCoursesData() {
         localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
+        localStorage.setItem('daisyNewCourseIndex', newCourseIndex); 
     }
 
     function saveUserSelection() {
@@ -545,6 +553,28 @@
         }
     }
 
+    // [수정] 옵션 삭제 시, DOM 상의 인덱스가 아니라 coursesData 내의 인덱스를 사용하여 정확히 삭제 후 다시 렌더링
+    function deleteOptionFromCourse(courseKey, index) {
+        if (coursesData[courseKey].options.length === 1) {
+            alert("최소한 하나의 옵션은 남겨야 합니다.");
+            return;
+        }
+        // [핵심 수정] 메모리에서 옵션 삭제
+        coursesData[courseKey].options.splice(index, 1);
+        renderAdminEditor(); // 다시 렌더링하여 DOM 인덱스 재정렬
+    }
+    
+    // [수정] 옵션 추가 시, 메모리에 먼저 추가 후 다시 렌더링
+    function addOptionToCourse(courseKey) {
+        if (!coursesData[courseKey].options) {
+            coursesData[courseKey].options = [];
+        }
+        // [핵심 수정] 메모리에 새 옵션 추가
+        coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
+        renderAdminEditor();
+    }
+
+
     function renderAdminEditor() {
         const editorContainer = document.getElementById('admin-course-editor');
         let html = '';
@@ -569,7 +599,7 @@
                     <div class="admin-options-container" id="options-${key}">
             `;
             
-            // 옵션 목록 렌더링
+            // 옵션 목록 렌더링 (index를 delete 함수에 넘기기 위해 사용)
             course.options.forEach((opt, index) => {
                 html += renderAdminOptionItem(key, index, opt.name, opt.price);
             });
@@ -586,6 +616,7 @@
     }
 
     function renderAdminOptionItem(courseKey, index, name, price) {
+        // data-index는 deleteOptionFromCourse에서 사용되며, renderAdminEditor 호출 시 새로 계산됨
         return `
             <div class="admin-option-item" data-index="${index}">
                 <input type="text" value="${name}" data-opt-field="name" placeholder="옵션 이름">
@@ -595,26 +626,10 @@
         `;
     }
 
-    function addOptionToCourse(courseKey) {
-        if (!coursesData[courseKey].options) {
-            coursesData[courseKey].options = [];
-        }
-        coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
-        renderAdminEditor();
-    }
-    
-    function deleteOptionFromCourse(courseKey, index) {
-        if (coursesData[courseKey].options.length === 1) {
-            alert("최소한 하나의 옵션은 남겨야 합니다.");
-            return;
-        }
-        coursesData[courseKey].options.splice(index, 1);
-        renderAdminEditor();
-    }
-
     function addNewCourse() {
         const keyPrefix = 'custom';
         let newKey = keyPrefix + newCourseIndex;
+        // 새로고침으로 인해 newCourseIndex가 유지되더라도, 혹시 모를 중복 방지를 위해 확인
         while(coursesData.hasOwnProperty(newKey)) {
             newCourseIndex++;
             newKey = keyPrefix + newCourseIndex;
@@ -626,7 +641,7 @@
             basePrice: 0, 
             options: [{name: '기본 옵션', price: 0}]
         };
-        newCourseIndex++;
+        newCourseIndex++; // 다음 키를 위해 증가
         renderAdminEditor();
     }
     
@@ -641,13 +656,24 @@
         }
     }
 
+    // [핵심 수정] 관리자 모드에서 최종 '저장' 시, 화면에 보이는 내용을 바탕으로 coursesData를 업데이트하고 로컬 스토리지에 저장
     function saveAdminChanges() {
         const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
         const newCoursesData = {};
+        
+        let maxNewIndex = 0;
 
         editorItems.forEach(item => {
             const oldKey = item.dataset.key;
             
+            // 커스텀 키의 최대 인덱스 확인 (새로고침 후에도 연속되도록)
+            if (oldKey.startsWith('custom')) {
+                const index = parseInt(oldKey.replace('custom', ''));
+                if (!isNaN(index) && index >= maxNewIndex) {
+                    maxNewIndex = index + 1;
+                }
+            }
+
             const title = item.querySelector('input[data-field="title"]').value;
             const time = item.querySelector('input[data-field="time"]').value;
             const basePriceInput = item.querySelector('input[data-field="basePrice"]');
@@ -670,7 +696,9 @@
         });
 
         coursesData = newCoursesData;
-        saveCoursesData(); 
+        newCourseIndex = maxNewIndex; // [핵심 수정] 다음 새 코스가 생성될 인덱스를 업데이트
+
+        saveCoursesData(); // [핵심 수정] coursesData와 newCourseIndex를 로컬 스토리지에 저장
         alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
         toggleAdminMode();
     }
@@ -782,48 +810,35 @@
         document.getElementById('final-quote-modal').style.display = 'flex';
     }
 
-    // [핵심 추가] 모달을 캡처하기 전에 body의 상태를 조정하는 함수
+    // --- 캡처 로직 (이전과 동일) ---
     function prepareQuoteCaptureAndDownload(fileName) {
         const phoneContainer = document.querySelector('.phone-container');
         const modal = document.getElementById('final-quote-modal');
         const controlButtons = document.getElementById('control-buttons');
         
-        // 1. body의 현재 내용(폰 프레임, 모달)을 저장
         originalBodyChildren = Array.from(document.body.children);
         
-        // 2. 캡처 전, 모달의 z-index를 캡처 래퍼가 감싸도록 조정 (기존 z-index: 1000)
         modal.style.zIndex = '1003';
         
-        // 3. body의 모든 자식 요소를 제거
         document.body.innerHTML = '';
         
-        // 4. 캡처를 위한 임시 래퍼를 생성하고 클래스 추가 (CSS 적용)
         const captureWrapper = document.createElement('div');
         captureWrapper.id = 'body-capture-wrapper';
         captureWrapper.classList.add('body-capture-wrapper');
 
-        // 5. 폰 컨테이너와 모달을 래퍼 안으로 이동
         captureWrapper.appendChild(phoneContainer);
         captureWrapper.appendChild(modal);
 
-        // 6. 래퍼를 body에 추가
         document.body.appendChild(captureWrapper);
 
-        // 7. 캡처 함수 호출 (래퍼 요소를 캡처 대상으로 지정)
         downloadFrameAsPNG(captureWrapper, fileName, true);
-        
-        // 8. 캡처가 완료되면 body를 원래대로 복구하는 로직은 downloadFrameAsPNG의 .then() 안에 작성됩니다.
     }
     
-    // [수정] 모달 닫기 버튼을 누르면 원래의 body 상태로 복구
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
-        
-        // 혹시 모를 경우를 대비하여 캡처 래퍼가 남아있다면 제거하는 함수 호출
         restoreBodyFromCapture();
     }
     
-    // [추가] body를 캡처 이전 상태로 복구하는 함수
     function restoreBodyFromCapture() {
         const captureWrapper = document.getElementById('body-capture-wrapper');
         
@@ -832,32 +847,19 @@
             const phoneContainer = document.querySelector('.phone-container');
             const controlButtons = document.getElementById('control-buttons');
 
-            // 1. 모달의 z-index 원복 (기존 z-index: 1000)
             modal.style.zIndex = '1000';
             
-            // 2. body의 모든 자식 요소를 제거
             document.body.innerHTML = '';
             
-            // 3. 폰 컨테이너와 모달을 body로 복구
             document.body.appendChild(phoneContainer);
             document.body.appendChild(modal);
             
-            // 4. 원래의 body 자식 요소를 복구합니다.
-            // (이 경우 phone-container와 modal이 이미 body에 붙었으므로, control-buttons만 추가합니다.)
             document.body.appendChild(controlButtons);
             
-            // 5. 래퍼가 있었다면 제거 (이미 innerHTML = ''로 지워졌겠지만 안전하게)
-            // if (captureWrapper.parentNode) {
-            //     captureWrapper.parentNode.removeChild(captureWrapper);
-            // }
-
-            // 6. 스크롤바를 다시 허용
             document.body.style.overflow = ''; 
         }
     }
 
-
-    // --- PNG 다운로드 기능 (수정됨: 캡처할 요소와 파일명을 인수로 받음, isQuoteCapture 추가) ---
     function downloadFrameAsPNG(captureElementOrId, fileName, isQuoteCapture = false) {
         let captureElement;
         
@@ -875,10 +877,8 @@
             return;
         }
         
-        // 폰 프레임 캡처 여부 확인
         const isPhoneFrameCapture = captureElement.id === 'phone-frame-capture';
         
-        // 캡처 전에 불필요한 요소 숨기기 (모달 캡처 버튼은 모달 내부에 있어 html2canvas의 ignoreElements로 처리하기 어렵기 때문에 임시로 숨깁니다.)
         if (isQuoteCapture) {
             document.getElementById('download-quote-btn').style.display = 'none';
             document.getElementById('modal-close-btn').style.display = 'none';
@@ -888,25 +888,21 @@
             scale: 2, 
             useCORS: true,
             ignoreElements: (node) => {
-                // 제어 버튼(편집/다운로드)은 항상 제외 (하지만 isQuoteCapture 시에는 body 구조가 바뀌어 이미 제외됨)
                 if (node.id === 'control-buttons') {
                     return true;
                 }
                 
-                // 폰 프레임 캡처 시, 견적서 보기/뒤로가기 버튼 제외
                 if (isPhoneFrameCapture && node.classList && node.classList.contains('action-btn')) {
                     return true;
                 }
                 
                 return false;
             },
-            // 폰 프레임 캡처(목록/상세)인 경우에만 스크롤을 고려
             ...(isPhoneFrameCapture ? {
                 windowHeight: captureElement.scrollHeight,
                 scrollY: -captureElement.scrollTop
             } : {})
         }).then(canvas => {
-            // 캡처 후 숨긴 버튼 다시 표시
             if (isQuoteCapture) {
                 document.getElementById('download-quote-btn').style.display = 'block';
                 document.getElementById('modal-close-btn').style.display = 'block';
@@ -920,19 +916,16 @@
             document.body.removeChild(link);
             alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
 
-            // [핵심 로직] 모달 캡처 후 body 상태를 원래대로 복구합니다.
             if (isQuoteCapture) {
                 restoreBodyFromCapture();
-                document.getElementById('final-quote-modal').style.display = 'flex'; // 복구 후 모달 다시 보여주기
+                document.getElementById('final-quote-modal').style.display = 'flex'; 
             }
         }).catch(err => {
-            // 오류 발생 시에도 복구
             if (isQuoteCapture) {
-                // 캡처 후 숨긴 버튼 다시 표시
                 document.getElementById('download-quote-btn').style.display = 'block';
                 document.getElementById('modal-close-btn').style.display = 'block';
                 restoreBodyFromCapture();
-                document.getElementById('final-quote-modal').style.display = 'flex'; // 복구 후 모달 다시 보여주기
+                document.getElementById('final-quote-modal').style.display = 'flex'; 
             }
             console.error("PNG 캡처 실패:", err);
             alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
