@@ -13,23 +13,20 @@
             padding: 0; 
             display: flex; 
             justify-content: center; 
-            /* phone-container의 배경색은 phone-frame 밖에서 설정합니다. */
             background-color: #f0f2f5; 
             position: relative; 
         }
         
         /* [핵심 수정: 캡처 시 전체 화면을 감싸는 래퍼 스타일] */
         .body-capture-wrapper {
-            /* 캡처할 때의 전체 화면 크기 (모든 스크롤을 방지) */
-            position: fixed; /* 절대 고정 */
+            position: fixed; 
             top: 0; left: 0; 
             width: 100%; height: 100%;
-            overflow: hidden; /* 스크롤바 방지 */
-            background-color: #f0f2f5; /* body 배경색과 동일하게 설정 */
+            overflow: hidden; 
+            background-color: #f0f2f5; 
             z-index: 1002; 
         }
         .body-capture-wrapper .phone-container {
-            /* 폰 컨테이너를 캡처 래퍼 중앙에 고정 */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -68,7 +65,7 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            background-image: url('bok.png');
+            background-image: url('bok.png'); /* 필요 시 이미지 경로 수정 */
             background-size: cover; 
             background-position: center; 
         }
@@ -78,11 +75,11 @@
             z-index: 1; 
         }
 
-        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
+        /* --- 2. 관리자/다운로드/견적/저장 버튼 그룹 스타일 (프레임 바깥 우측 상단 분리) --- */
         #control-buttons {
             position: absolute; 
             top: 30px; 
-            right: -170px; 
+            right: -170px; /* 프레임 밖으로 이동 */
             z-index: 1001; 
             display: flex;
             flex-direction: column; 
@@ -91,12 +88,12 @@
         }
 
         /* 개별 버튼 스타일 조정 */
-        #toggle-admin-btn, #download-list-btn {
+        #control-buttons button {
             padding: 10px 10px; 
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.95em;
             width: 100%; 
             font-weight: bold;
             box-shadow: 0 4px 0 rgba(0,0,0,0.3);
@@ -105,11 +102,19 @@
 
         /* 버튼별 색상 설정 */
         #toggle-admin-btn {
-            background-color: #5B5BFF;
+            background-color: #5B5BFF; /* 파랑 */
             color: white;
         }
         #download-list-btn {
-            background-color: #ff69b4; 
+            background-color: #ff69b4; /* 핫핑크 */
+            color: white;
+        }
+        #show-quote-btn {
+            background-color: #9c27b0; /* 보라색 (새 버튼) */
+            color: white;
+        }
+        #save-options-btn {
+            background-color: #00bcd4; /* 청록색 (새 버튼) */
             color: white;
         }
 
@@ -118,8 +123,12 @@
             background-color: #FF0000 !important;
             box-shadow: 0 4px 0 #b30000 !important;
         }
+        /* 상세 페이지에서만 보여야 하는 버튼 */
+        .detail-only {
+            display: none; 
+        }
         
-        /* --- 3. 코스 목록 스타일 (다시 원래 마진 사용) --- */
+        /* --- 3. 코스 목록 스타일 --- */
         #admin-view {
             display: none; 
             background-color: #ffe0f7;
@@ -129,7 +138,6 @@
             border: 2px dashed #d11e8a;
         }
         
-        /* 나머지 편집 모드 스타일은 유지 */
         .admin-course-item {
             background-color: #fff;
             padding: 15px;
@@ -202,7 +210,7 @@
             margin-left: 15px;
         }
         
-        /* --- 4. 상세 뷰 및 옵션 스타일 (유지) --- */
+        /* --- 4. 상세 뷰 및 옵션 스타일 --- */
         #detail-view { 
             display: none; 
             flex-direction: column;
@@ -266,11 +274,13 @@
             transition: background-color 0.2s;
             font-weight: bold;
         }
+        /* 견적서 버튼은 외부로 이동했으므로 제거
         #quote-modal-btn { 
             background-color: #ff69b4; 
             color: white; 
             box-shadow: 0 4px 0 #d11e8a;
         }
+        */
         #back-btn { 
             background-color: #ccc; 
             color: #333;
@@ -406,7 +416,6 @@
                 <span id="current-total-price">₩ 0</span>
             </div>
 
-            <button id="quote-modal-btn" class="action-btn" onclick="showFinalQuote()">💸 최종 견적서 보기</button>
             <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
         </div>
     </div>
@@ -414,6 +423,8 @@
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
         <button id="download-list-btn" onclick="downloadFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">🖼️ PNG 다운로드</button>
+        <button id="show-quote-btn" class="detail-only" onclick="showFinalQuote()">💸 견적서 보기</button>
+        <button id="save-options-btn" class="detail-only" onclick="saveUserSelectionsManually()">💾 현재 옵션 저장</button>
     </div>
 </div>
 
@@ -437,7 +448,7 @@
 </div>
 
 <script>
-    // 최초 기본 데이터
+    // 최초 기본 데이터 (이전과 동일)
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 50000, options: [{name: '로리플', price: 20000}, {name: '애널', price: 15000}, {name: '코스추가1', price: 10000}, {name: '코스추가2', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -449,14 +460,14 @@
     let coursesData; 
     let currentSelectedCourseKey = null;
     let isEditingMode = false;
-    let newCourseIndex = 0; // [수정] 이 변수를 로컬 스토리지에 함께 저장하여 유지해야 함
+    let newCourseIndex = 0; 
     let originalBodyChildren = []; 
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
     function loadCoursesData() {
         const savedData = localStorage.getItem('daisyCoursesData');
-        const savedIndex = localStorage.getItem('daisyNewCourseIndex'); // [추가] 인덱스 로드
+        const savedIndex = localStorage.getItem('daisyNewCourseIndex'); 
 
         if (savedData) {
             coursesData = JSON.parse(savedData);
@@ -465,18 +476,22 @@
         }
 
         if (savedIndex) {
-            newCourseIndex = parseInt(savedIndex); // [추가] 인덱스 로드
+            newCourseIndex = parseInt(savedIndex); 
         } else {
             newCourseIndex = 0;
         }
     }
     
-    // [수정] 인덱스도 함께 저장하도록 업데이트
     function saveCoursesData() {
         localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
         localStorage.setItem('daisyNewCourseIndex', newCourseIndex); 
     }
 
+    /**
+     * [수정 및 자동 저장 핵심]
+     * 현재 선택된 코스의 옵션 상태를 로컬 스토리지에 저장합니다.
+     * 이 함수는 옵션 선택이 변경될 때마다 (updateTotalPrice에서) 호출됩니다.
+     */
     function saveUserSelection() {
         if (!currentSelectedCourseKey) return;
 
@@ -495,7 +510,16 @@
 
         localStorage.setItem('daisyUserSelections', JSON.stringify(savedSelections));
     }
-
+    
+    // [추가] 수동 저장 버튼을 위한 함수
+    function saveUserSelectionsManually() {
+        if (!currentSelectedCourseKey) {
+            alert("선택된 코스가 없습니다.");
+            return;
+        }
+        saveUserSelection(); // 자동 저장 로직과 동일
+        alert(`✅ [${coursesData[currentSelectedCourseKey].title} 코스] 옵션 설정이 수동으로 저장되었습니다.`);
+    }
 
     // --- 뷰 전환 및 렌더링 (사용자 모드) ---
     function renderCourseList() {
@@ -506,6 +530,11 @@
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
         document.getElementById('download-list-btn').style.display = 'block'; 
+        
+        // [수정] 견적서/저장 버튼 숨김
+        document.getElementById('show-quote-btn').classList.add('detail-only');
+        document.getElementById('save-options-btn').classList.add('detail-only');
+
 
         const itemsContainer = document.getElementById('course-items-container');
         let html = '';
@@ -534,42 +563,41 @@
     }
 
 
-    // --- 관리자 편집 모드 함수 ---
+    // --- 관리자 편집 모드 함수 (이전과 동일) ---
     function toggleAdminMode() {
         isEditingMode = !isEditingMode;
         
         if (isEditingMode) {
-            // 편집 모드 켜기
             document.getElementById('course-list-view').style.display = 'none';
             document.getElementById('detail-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'block';
             document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료';
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
             document.getElementById('download-list-btn').style.display = 'none'; 
+            
+            // [수정] 견적서/저장 버튼 숨김
+            document.getElementById('show-quote-btn').classList.add('detail-only');
+            document.getElementById('save-options-btn').classList.add('detail-only');
+
             renderAdminEditor();
         } else {
-            // 편집 모드 끄고 일반 목록으로 돌아가기
             renderCourseList();
         }
     }
 
-    // [수정] 옵션 삭제 시, DOM 상의 인덱스가 아니라 coursesData 내의 인덱스를 사용하여 정확히 삭제 후 다시 렌더링
     function deleteOptionFromCourse(courseKey, index) {
         if (coursesData[courseKey].options.length === 1) {
             alert("최소한 하나의 옵션은 남겨야 합니다.");
             return;
         }
-        // [핵심 수정] 메모리에서 옵션 삭제
         coursesData[courseKey].options.splice(index, 1);
-        renderAdminEditor(); // 다시 렌더링하여 DOM 인덱스 재정렬
+        renderAdminEditor(); 
     }
     
-    // [수정] 옵션 추가 시, 메모리에 먼저 추가 후 다시 렌더링
     function addOptionToCourse(courseKey) {
         if (!coursesData[courseKey].options) {
             coursesData[courseKey].options = [];
         }
-        // [핵심 수정] 메모리에 새 옵션 추가
         coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
         renderAdminEditor();
     }
@@ -599,7 +627,6 @@
                     <div class="admin-options-container" id="options-${key}">
             `;
             
-            // 옵션 목록 렌더링 (index를 delete 함수에 넘기기 위해 사용)
             course.options.forEach((opt, index) => {
                 html += renderAdminOptionItem(key, index, opt.name, opt.price);
             });
@@ -616,7 +643,6 @@
     }
 
     function renderAdminOptionItem(courseKey, index, name, price) {
-        // data-index는 deleteOptionFromCourse에서 사용되며, renderAdminEditor 호출 시 새로 계산됨
         return `
             <div class="admin-option-item" data-index="${index}">
                 <input type="text" value="${name}" data-opt-field="name" placeholder="옵션 이름">
@@ -629,7 +655,6 @@
     function addNewCourse() {
         const keyPrefix = 'custom';
         let newKey = keyPrefix + newCourseIndex;
-        // 새로고침으로 인해 newCourseIndex가 유지되더라도, 혹시 모를 중복 방지를 위해 확인
         while(coursesData.hasOwnProperty(newKey)) {
             newCourseIndex++;
             newKey = keyPrefix + newCourseIndex;
@@ -641,7 +666,7 @@
             basePrice: 0, 
             options: [{name: '기본 옵션', price: 0}]
         };
-        newCourseIndex++; // 다음 키를 위해 증가
+        newCourseIndex++; 
         renderAdminEditor();
     }
     
@@ -656,7 +681,6 @@
         }
     }
 
-    // [핵심 수정] 관리자 모드에서 최종 '저장' 시, 화면에 보이는 내용을 바탕으로 coursesData를 업데이트하고 로컬 스토리지에 저장
     function saveAdminChanges() {
         const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
         const newCoursesData = {};
@@ -666,7 +690,6 @@
         editorItems.forEach(item => {
             const oldKey = item.dataset.key;
             
-            // 커스텀 키의 최대 인덱스 확인 (새로고침 후에도 연속되도록)
             if (oldKey.startsWith('custom')) {
                 const index = parseInt(oldKey.replace('custom', ''));
                 if (!isNaN(index) && index >= maxNewIndex) {
@@ -696,14 +719,14 @@
         });
 
         coursesData = newCoursesData;
-        newCourseIndex = maxNewIndex; // [핵심 수정] 다음 새 코스가 생성될 인덱스를 업데이트
+        newCourseIndex = maxNewIndex; 
 
-        saveCoursesData(); // [핵심 수정] coursesData와 newCourseIndex를 로컬 스토리지에 저장
+        saveCoursesData(); 
         alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
         toggleAdminMode();
     }
 
-    // --- 사용자 상호작용 함수 (이전과 동일) ---
+    // --- 사용자 상호작용 함수 ---
     function selectCourse(key) {
         currentSelectedCourseKey = key;
         const course = coursesData[key];
@@ -715,6 +738,10 @@
         document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
         document.getElementById('detail-time-selected').textContent = course.time;
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
+        
+        // [수정] 견적서/저장 버튼 노출
+        document.getElementById('show-quote-btn').classList.remove('detail-only');
+        document.getElementById('save-options-btn').classList.remove('detail-only');
         
         renderOptions(course.options);
         
@@ -745,7 +772,8 @@
         if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
             optionsToPreCheck = currentCourseSaved.selectedOptions;
         } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') {
-            optionsToPreCheck = [1]; 
+            // 초기값 설정 (필요 시 수정)
+            // optionsToPreCheck = [1]; 
         }
         
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((cb, index) => {
@@ -759,6 +787,9 @@
         updateTotalPrice();
     }
 
+    /**
+     * [수정] 총 금액 업데이트 후 옵션 선택 상태를 자동 저장합니다.
+     */
     function updateTotalPrice() {
         if (!currentSelectedCourseKey) return;
 
@@ -772,11 +803,15 @@
 
         document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
         
+        // [핵심 수정] 옵션 변경 시 자동 저장
         saveUserSelection(); 
     }
 
     function showFinalQuote() {
-        if (!currentSelectedCourseKey) return;
+        if (!currentSelectedCourseKey) {
+            alert("견적서를 보려면 코스를 선택해 주세요.");
+            return;
+        }
         
         const course = coursesData[currentSelectedCourseKey];
         let totalPrice = course.basePrice;
@@ -892,8 +927,11 @@
                     return true;
                 }
                 
-                if (isPhoneFrameCapture && node.classList && node.classList.contains('action-btn')) {
-                    return true;
+                // 상세 페이지에서는 내부 버튼 (뒤로가기 등)은 캡처되어야 함.
+                // 외부 버튼들만 무시
+                if (isPhoneFrameCapture && node.classList && node.classList.contains('detail-only')) {
+                    // detail-only 클래스를 가진 외부 버튼은 캡처하지 않음
+                    return true; 
                 }
                 
                 return false;
