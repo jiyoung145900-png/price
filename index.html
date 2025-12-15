@@ -85,10 +85,12 @@
             color: white;
             display: none; /* 초기에는 숨김 */
         }
-        #download-list-btn { background-color: #ff69b4; color: white; }
+        /* 캡처 버튼 스타일 */
+        #capture-list-btn, #capture-quote-btn { background-color: #ff69b4; color: white; }
+        
         #show-quote-btn { background-color: #9c27b0; color: white; }
         #save-options-btn { background-color: #00bcd4; color: white; }
-        #download-quote-btn-external { background-color: #4CAF50; color: white; }
+        
 
         /* 편집 모드일 때의 버튼 색상 */
         .admin-mode-active {
@@ -248,10 +250,11 @@
     <div id="control-buttons">
         <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
         <button id="save-admin-changes-btn" onclick="saveAdminChanges()">✅ 편집 내용 저장</button>
-        <button id="download-list-btn" onclick="downloadFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">🖼️ PNG 다운로드</button>
+        
+        <button id="capture-list-btn" onclick="captureFrameAsPNG('phone-frame-capture', 'DAISY_코스목록_캡처.png')">📸 목록 캡처 (PNG)</button>
         
         <button id="show-quote-btn" class="detail-only" onclick="showFinalQuote()">💸 견적서 보기</button>
-        <button id="download-quote-btn-external" class="detail-only" onclick="downloadQuoteAsPNG('DAISY_견적서_캡처.png')">📸 견적서 캡처</button>
+        <button id="capture-quote-btn" class="detail-only" onclick="captureQuoteAsPNG('DAISY_견적서_캡처.png')">📷 견적서 캡처 (PNG)</button>
         <button id="save-options-btn" class="detail-only" onclick="saveUserSelectionsManually()">💾 현재 옵션 저장</button>
     </div>
 </div>
@@ -370,13 +373,13 @@
         
         document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
         document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
-        document.getElementById('download-list-btn').style.display = 'block'; 
+        document.getElementById('capture-list-btn').style.display = 'block'; 
         
         document.getElementById('save-admin-changes-btn').style.display = 'none';
 
         // 상세 페이지 전용 버튼 숨김
         document.getElementById('show-quote-btn').classList.add('detail-only');
-        document.getElementById('download-quote-btn-external').classList.add('detail-only');
+        document.getElementById('capture-quote-btn').classList.add('detail-only');
         document.getElementById('save-options-btn').classList.add('detail-only');
 
 
@@ -420,10 +423,10 @@
             document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
             document.getElementById('save-admin-changes-btn').style.display = 'block'; 
 
-            document.getElementById('download-list-btn').style.display = 'none'; 
+            document.getElementById('capture-list-btn').style.display = 'none'; 
             
             document.getElementById('show-quote-btn').classList.add('detail-only');
-            document.getElementById('download-quote-btn-external').classList.add('detail-only');
+            document.getElementById('capture-quote-btn').classList.add('detail-only');
             document.getElementById('save-options-btn').classList.add('detail-only');
 
             renderAdminEditor();
@@ -437,9 +440,6 @@
         }
     }
 
-    /**
-     * [수정] 옵션 삭제 시 스크롤 위치 유지 및 재렌더링
-     */
     function deleteOptionFromCourse(courseKey, index) {
         if (coursesData[courseKey].options.length === 1) {
             alert("최소한 하나의 옵션은 남겨야 합니다.");
@@ -456,11 +456,8 @@
         document.getElementById('phone-frame-capture').scrollTop = scrollPosition;
     }
     
-    /**
-     * [수정] 옵션 추가 시 해당 코스 위치로 스크롤
-     */
     function addOptionToCourse(event, courseKey) {
-        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+        if (event) event.preventDefault(); 
 
         if (!coursesData[courseKey].options) {
             coursesData[courseKey].options = [];
@@ -474,7 +471,6 @@
         if (courseElement) {
             const optionsContainer = courseElement.querySelector('.admin-options-container');
             if (optionsContainer.lastElementChild) {
-                // 부드러운 스크롤 효과
                 optionsContainer.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
             }
         }
@@ -517,7 +513,6 @@
             `;
         }
         editorContainer.innerHTML = html;
-        // renderAdminEditor 자체는 스크롤을 맨 위로 올리지 않도록 호출부에 맡김
     }
 
     function renderAdminOptionItem(courseKey, index, name, price) {
@@ -530,11 +525,8 @@
         `;
     }
 
-    /**
-     * [수정] 새 코스 추가 시 맨 아래로 스크롤
-     */
     function addNewCourse(event) {
-        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+        if (event) event.preventDefault(); 
         
         const keyPrefix = 'custom';
         let newKey = keyPrefix + newCourseIndex;
@@ -553,18 +545,14 @@
         
         renderAdminEditor();
         
-        // 새로 추가된 코스 위치로 부드러운 스크롤
         const newCourseElement = document.querySelector(`.admin-course-item[data-key="${newKey}"]`);
         if (newCourseElement) {
             newCourseElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }
     
-    /**
-     * [수정] 코스 삭제 시 스크롤 위치 유지
-     */
     function deleteCourse(event, courseKey) {
-        if (event) event.preventDefault(); // 버튼 기본 동작 방지
+        if (event) event.preventDefault(); 
 
         if (Object.keys(coursesData).length === 1) {
             alert("최소한 하나의 코스는 남겨야 합니다.");
@@ -577,7 +565,6 @@
             delete coursesData[courseKey];
             renderAdminEditor();
             
-            // 스크롤 위치 복원
             document.getElementById('phone-frame-capture').scrollTop = scrollPosition;
         }
     }
@@ -643,7 +630,7 @@
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
         
         document.getElementById('show-quote-btn').classList.remove('detail-only');
-        document.getElementById('download-quote-btn-external').classList.remove('detail-only');
+        document.getElementById('capture-quote-btn').classList.remove('detail-only');
         document.getElementById('save-options-btn').classList.remove('detail-only');
         
         document.getElementById('save-admin-changes-btn').style.display = 'none';
@@ -754,10 +741,8 @@
         document.getElementById('final-quote-modal').style.display = 'none';
     }
 
-    // --- 캡처 로직 ---
-    
-    // 코스 목록 프레임 캡처
-    function downloadFrameAsPNG(captureElementOrId, fileName) {
+    // --- 캡처 기능 함수 1: 목록 캡처 ---
+    function captureFrameAsPNG(captureElementOrId, fileName) {
         let captureElement;
         
         if (typeof captureElementOrId === 'string') {
@@ -775,6 +760,7 @@
             scale: 2, 
             useCORS: true,
             ignoreElements: (node) => {
+                // 제어 버튼은 캡처에서 제외
                 if (node.id === 'control-buttons') {
                     return true;
                 }
@@ -783,26 +769,28 @@
             windowHeight: captureElement.scrollHeight,
             scrollY: -captureElement.scrollTop
         }).then(canvas => {
+            // PNG 파일로 변환 및 다운로드 (이것이 캡처의 저장 행위입니다)
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
+            alert(`✅ ${fileName} 파일이 캡처되었습니다!`);
         }).catch(err => {
             console.error("PNG 캡처 실패:", err);
             alert("❌ PNG 캡처에 실패했습니다. (콘솔 로그 확인)");
         });
     }
 
-    // 견적서 모달만 캡처
-    function downloadQuoteAsPNG(fileName) {
+    // --- 캡처 기능 함수 2: 견적서 캡처 ---
+    function captureQuoteAsPNG(fileName) {
         if (!currentSelectedCourseKey) {
             alert("견적서 캡처를 위해 코스를 먼저 선택해 주세요.");
             return;
         }
         
+        // 견적서 모달을 띄웁니다.
         showFinalQuote(); 
         
         const modalContent = document.getElementById('modal-capture-target');
@@ -819,14 +807,14 @@
             // 캡처 후 다시 버튼 보이기
             modalButton.style.display = 'block';
             
-            // PNG 다운로드
+            // PNG 파일로 변환 및 다운로드 (이것이 캡처의 저장 행위입니다)
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert(`✅ ${fileName} 파일이 다운로드되었습니다.`);
+            alert(`✅ ${fileName} 파일이 캡처되었습니다!`);
 
         }).catch(err => {
             modalButton.style.display = 'block';
@@ -841,7 +829,7 @@
         loadCoursesData();
         renderCourseList();
         document.getElementById('final-quote-modal').style.display = 'none';
-        // HTML 요소가 로드된 후, 버튼 참조를 다시 가져와 숨깁니다.
+        
         const saveAdminBtn = document.getElementById('save-admin-changes-btn');
         if (saveAdminBtn) {
             saveAdminBtn.style.display = 'none'; 
