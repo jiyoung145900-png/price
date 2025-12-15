@@ -32,7 +32,7 @@
             position: relative;
         }
 
-        /* ★★★ 배경 이미지 삽입 공간 ★★★ */
+        /* ★★★ 배경 이미지 삽입 공간 (Base64 인코딩 사용) ★★★ */
         #main-background {
             position: absolute;
             top: 0;
@@ -41,8 +41,13 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            /* * 이 부분에 배경 이미지를 설정하세요. */
+            
+            /* ↓↓↓↓↓↓ 여기에 Base64 인코딩된 이미지 코드를 넣어주세요 ↓↓↓↓↓↓ */
+            background-image: url('data:image/jpeg;base64, <여기에 인코딩된 Base64 문자열을 붙여넣으세요>');
+            background-size: cover; /* 이미지가 잘리지 않게 프레임 전체를 덮도록 설정 */
+            background-position: center; /* 이미지가 중앙에 오도록 설정 */
         }
+        
         header, #course-list-view, #detail-view {
             position: relative;
             z-index: 1; 
