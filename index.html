@@ -24,6 +24,7 @@
             /* 요청 사이즈 680x1248px에 맞춤 */
             width: 680px; 
             height: 1248px; 
+            /* 캡처 시 전체 내용이 포함되도록 overflow-y: auto 유지 */
             overflow-y: auto; 
             background-color: #fff;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
@@ -48,18 +49,8 @@
             position: relative;
             z-index: 1; 
         }
-
-        /* --- 2. 헤더 스타일 --- */
-        header { 
-            text-align: center; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid #ffb6c1; 
-        }
-        #logo-placeholder { width: 100%; height: 120px; margin: 0 auto 10px; display: block; }
-        h2 { color: #5B5BFF; font-size: 1.2em; margin-top: 5px; }
-
-        /* --- 3. 코스 목록 및 상세 스타일 --- */
+        
+        /* --- 2. 코스 목록 및 상세 스타일 --- */
         .course-item {
             background-color: rgba(255, 250, 252, 0.9); 
             border: 1px solid #ffb6c1;
@@ -74,23 +65,10 @@
         }
         #detail-view { 
             background-color: rgba(245, 248, 255, 0.95); 
-            /* ... 기타 스타일 ... */
+            /* 이 안에 있던 버튼들은 화면 밖으로 분리되었습니다. */
         }
         
-        /* 버튼 */
-        .action-btn { 
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 15px; 
-            border-radius: 8px; 
-            font-size: 1.1em; 
-            cursor: pointer; 
-            border: none;
-            transition: background-color 0.2s;
-        }
-        #quote-modal-btn { background-color: #ff69b4; color: white; }
-        
-        /* --- 4. 최종 견적 모달 (캡처용) --- */
+        /* --- 3. 최종 견적 모달 (캡처용) --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -106,10 +84,7 @@
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .quote-header { text-align: center; border-bottom: 3px solid #ff69b4; padding-bottom: 10px; margin-bottom: 20px;}
-        .final-total .total-price { font-size: 2.5em; font-weight: 900; color: #ff0000; }
-        
-        /* 모달 내부 버튼 스타일 */
+        /* 모달 내부 버튼 스타일 (캡처에서 제외되어야 함) */
         .modal-button {
             background-color: #5B5BFF; 
             color: white; 
@@ -121,10 +96,8 @@
             width: 100%;
             font-weight: bold;
         }
-        #modal-close-btn { background-color: #ccc; color: #333; margin-top: 15px;}
 
-
-        /* --- 5. 관리자/다운로드 버튼 (화면 밖 배치) --- */
+        /* --- 4. 외부 컨트롤 버튼 (화면 밖 배치) --- */
         #external-controls {
             position: absolute;
             left: 100%; 
@@ -134,7 +107,8 @@
             flex-direction: column;
             gap: 10px;
         }
-        #admin-mode-btn, #png-download-btn, #external-save-btn { 
+        /* 캡처를 위한 주요 버튼들 */
+        .external-control-btn { 
             background-color: orange; 
             color: white; 
             padding: 10px 15px; 
@@ -142,11 +116,15 @@
             cursor: pointer; 
             border: none; 
             font-weight: bold; 
+            white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
         }
+        #admin-mode-btn { background-color: #333; }
         #png-download-btn { background-color: #5B5BFF; }
-        #external-save-btn { background-color: green; display: none; } /* 초기에는 숨김 */
+        #external-save-btn { background-color: green; display: none; } 
+        #external-quote-btn { background-color: #ff69b4; display: none; } /* 상세 화면에서만 보이도록 초기 숨김 */
+        #external-back-btn { background-color: #ccc; color: #333; display: none; } /* 상세 화면에서만 보이도록 초기 숨김 */
 
-        /* --- 6. 관리자 패널 스타일 --- */
+        /* --- 5. 관리자 패널 스타일 --- */
         #admin-panel { 
             display: none; 
             padding: 20px; 
@@ -155,7 +133,11 @@
             border-radius: 10px; 
             margin-bottom: 20px;
         }
-        /* 참고: '저장' 버튼은 외부로 이동되었으므로 패널 내부 스타일에서 삭제됨 */
+        /* 관리자 입력 스타일 유지 */
+        .admin-panel-item label { display: block; font-weight: bold; margin-top: 10px; }
+        .admin-panel-item input[type="text"], .admin-panel-item textarea {
+            width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -163,9 +145,13 @@
 <div class="phone-container">
     
     <div id="external-controls">
-        <button id="admin-mode-btn" onclick="toggleAdminMode()">⚙️ 가격/옵션 설정</button>
-        <button id="external-save-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
-        <button id="png-download-btn" onclick="downloadFrameAsPNG()">🖼️ PNG 다운로드</button>
+        <button id="admin-mode-btn" class="external-control-btn" onclick="toggleAdminMode()">⚙️ 가격/옵션 설정</button>
+        <button id="external-save-btn" class="external-control-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
+        
+        <button id="external-quote-btn" class="external-control-btn" onclick="showFinalQuote()">💸 최종 견적서 보기 (캡처용)</button>
+        <button id="external-back-btn" class="external-control-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
+
+        <button id="png-download-btn" class="external-control-btn" onclick="downloadFrameAsPNG(false)">🖼️ 현재 화면 PNG 다운로드</button>
     </div>
 
     <div class="phone-frame" id="phone-frame-capture">
@@ -199,9 +185,7 @@
                 <h3>선택 옵션 추가 (복수 선택 가능)</h3>
             </div>
             
-            <button id="quote-modal-btn" class="action-btn" onclick="showFinalQuote()">💸 최종 견적서 보기</button>
-            <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
-        </div>
+            </div>
     </div>
 </div>
 
@@ -220,7 +204,7 @@
         </div>
 
         <button class="modal-button" onclick="downloadFrameAsPNG(true)">🖼️ 이 견적서 PNG 다운로드</button>
-        <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기 (다운로드 후 사용)</button>
+        <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기</button>
     </div>
 </div>
 
@@ -256,9 +240,16 @@
         localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
     }
 
+    function toggleDetailButtons(show) {
+        document.getElementById('external-quote-btn').style.display = show ? 'block' : 'none';
+        document.getElementById('external-back-btn').style.display = show ? 'block' : 'none';
+    }
+
+    // --- 뷰 전환 및 렌더링 ---
     function renderCourseList() {
         document.getElementById('course-list-view').style.display = 'block';
         document.getElementById('detail-view').style.display = 'none';
+        toggleDetailButtons(false);
 
         let html = '<h3 style="color: #d11e8a; text-align: center;">💎 코스 목록 및 가격 💎</h3>';
         for (const key in coursesData) {
@@ -274,6 +265,7 @@
             `;
         }
         document.getElementById('course-list-view').innerHTML = html;
+        document.getElementById('phone-frame-capture').scrollTop = 0; // 목록 보기 시 스크롤 맨 위로
     }
 
     function selectCourse(key) {
@@ -282,6 +274,7 @@
         
         document.getElementById('course-list-view').style.display = 'none';
         document.getElementById('detail-view').style.display = 'flex';
+        toggleDetailButtons(true); // 상세 버튼 보이기
         
         document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
         document.getElementById('detail-time-selected').textContent = course.time;
@@ -290,6 +283,7 @@
         renderOptions(course.options);
         
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('phone-frame-capture').scrollTop = 0; // 상세 화면 보기 시 스크롤 맨 위로
     }
 
     function renderOptions(options) {
@@ -360,11 +354,11 @@
 
         if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
             adminPanel.style.display = 'block';
-            externalSaveBtn.style.display = 'block'; // 저장 버튼 보이기
+            externalSaveBtn.style.display = 'block'; 
             renderAdminPanel();
         } else {
             adminPanel.style.display = 'none';
-            externalSaveBtn.style.display = 'none'; // 저장 버튼 숨기기
+            externalSaveBtn.style.display = 'none'; 
         }
     }
 
@@ -373,7 +367,6 @@
         let html = '';
         for (const key in coursesData) {
             const course = coursesData[key];
-            // JSON.stringify(null, 2)를 사용하여 예쁘게 포매팅
             const optionsJson = JSON.stringify(course.options, null, 2); 
 
             html += `
@@ -415,7 +408,7 @@
             coursesData = newCoursesData;
             saveCoursesData(); 
             renderCourseList(); 
-            // 저장 성공 시 관리자 모드 자동 닫기 및 버튼 숨기기
+            
             document.getElementById('admin-panel').style.display = 'none';
             document.getElementById('external-save-btn').style.display = 'none';
             alert('✅ 관리자 설정이 성공적으로 저장되었습니다!\n새로운 가격과 옵션으로 적용되었습니다.');
@@ -430,15 +423,17 @@
         let captureElement;
         let fileName;
         
-        // isModalDownload이 true이거나, 모달이 실제로 열려있을 때
+        // 1. 캡처 대상 결정
         if (isModalDownload || document.getElementById('final-quote-modal').style.display === 'flex') {
             captureElement = document.getElementById('modal-capture-target'); // 모달 내용 캡처
             fileName = 'DAISY_최종견적서.png';
         } else {
-            captureElement = document.getElementById('phone-frame-capture'); // 휴대폰 프레임 전체 캡처
-            fileName = 'DAISY_가격표_전체.png';
+            // 휴대폰 프레임 전체 캡처 (옵션 목록이 길어도 전체 캡처됨)
+            captureElement = document.getElementById('phone-frame-capture'); 
+            fileName = 'DAISY_현재화면_캡처.png';
         }
 
+        // 2. html2canvas 실행
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
@@ -449,7 +444,10 @@
                 }
                 // 프레임 캡처 시에는 프레임 내의 모든 콘텐츠를 캡처
                 return false;
-            }
+            },
+            // 스크롤된 내용까지 모두 캡처하기 위해 windowHeight/scrollY 옵션 사용
+            windowHeight: captureElement.scrollHeight,
+            scrollY: -captureElement.scrollTop
         }).then(canvas => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
