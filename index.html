@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY HOOKUPS | 코스 및 가격표</title>
+    <title>DAISY HOOKUPS | 코스 및 가격표 (관리자 편집 가능)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* --- 1. 기본 설정 및 크기 지정 --- */
@@ -32,7 +32,7 @@
             position: relative;
         }
 
-        /* ★★★ 배경 이미지 삽입 공간 (GitHub 파일 bok.png 사용) ★★★ */
+        /* ★★★ 배경 이미지 삽입 공간 ★★★ */
         #main-background {
             position: absolute;
             top: 0;
@@ -41,25 +41,114 @@
             height: 100%;
             z-index: 0; 
             opacity: 0.8; 
-            
-            /* ↓↓↓↓↓↓ 파일 경로로 설정: bok.png가 같은 폴더에 있어야 합니다. ↓↓↓↓↓↓ */
             background-image: url('bok.png');
-            background-size: cover; /* 이미지가 잘리지 않게 프레임 전체를 덮도록 설정 */
-            background-position: center; /* 이미지가 중앙에 오도록 설정 */
+            background-size: cover; 
+            background-position: center; 
         }
         
-        #course-list-view, #detail-view {
+        #course-list-view, #detail-view, #admin-view {
             position: relative;
             z-index: 1; 
         }
 
-        /* --- 3. 코스 목록 스타일 --- */
+        /* --- 2. 관리자/다운로드 버튼 그룹 스타일 (우측 분리) --- */
+        #control-buttons {
+            display: flex;
+            justify-content: flex-end; /* 오른쪽 끝으로 정렬 */
+            gap: 10px; /* 버튼 사이 간격 */
+            margin-bottom: 20px; 
+            margin-top: 0; 
+        }
+
+        /* 개별 버튼 스타일 조정 */
+        #toggle-admin-btn, #download-list-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            width: auto; 
+            font-weight: bold;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+
+        /* 버튼별 색상 설정 */
+        #toggle-admin-btn {
+            background-color: #5B5BFF;
+            color: white;
+        }
+        #download-list-btn {
+            background-color: #ff69b4; 
+            color: white;
+        }
+
+        /* 편집 모드일 때의 버튼 색상 */
+        .admin-mode-active {
+            background-color: #FF0000 !important;
+            box-shadow: 0 3px 0 #b30000 !important;
+        }
+        
+        /* --- 3. 코스 목록 스타일 (버튼 그룹 아래로 내려옴) --- */
+        #admin-view {
+            display: none; 
+            background-color: #ffe0f7;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px dashed #d11e8a;
+        }
+        #admin-view h3 {
+            color: #d11e8a;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-course-item {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffb6c1;
+        }
+        .admin-course-item input, .admin-course-item button, .admin-option-item input {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .admin-course-item .price-input { width: calc(50% - 15px); float: right; margin-left: 10px; }
+        .admin-course-item .name-input { width: calc(50% - 15px); }
+
+        .admin-option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+        .admin-option-item input {
+            width: 35%;
+            margin: 0;
+        }
+        .admin-option-item button {
+            width: 25%;
+            padding: 8px 5px;
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        .admin-button-group button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
         .course-list-header {
             color: #d11e8a; 
             text-align: center; 
             font-size: 1.5em;
-            /* 150px로 메뉴를 내리기 위해 변경되었습니다. */
-            margin-top: 180px; 
+            margin-top: 50px; /* 버튼 그룹 아래로 내리기 위한 마진 */
             margin-bottom: 30px; 
         }
         .course-item {
@@ -86,22 +175,8 @@
             margin-left: 15px;
         }
         
-        /* 코스 목록 다운로드 버튼 스타일 */
-        #download-list-btn {
-            background-color: #5B5BFF; 
-            color: white; 
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            margin-top: 30px; 
-            font-size: 1.1em;
-            box-shadow: 0 4px 0 #4a4adf;
-        }
-
-
+        /* 코스 목록 다운로드 버튼 스타일 (삭제 - control-buttons로 이동) */
+        
         /* --- 4. 상세 뷰 및 옵션 스타일 --- */
         #detail-view { 
             display: none; 
@@ -177,7 +252,7 @@
             box-shadow: 0 4px 0 #999;
         }
 
-        /* --- 6. 최종 견적 모달 (디자인 강화) --- */
+        /* --- 6. 최종 견적 모달 --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -243,7 +318,7 @@
             color: #ff0000; 
         }
 
-        /* 모달 버튼 스타일 (캡처에서 제외됨) */
+        /* 모달 버튼 스타일 */
         .modal-button {
             background-color: #5B5BFF; 
             color: white; 
@@ -256,7 +331,6 @@
             font-weight: bold;
             box-shadow: 0 4px 0 #4a4adf; 
         }
-        /* 삭제된 #modal-download-btn 스타일 */
         #modal-close-btn { 
             background-color: #ccc; 
             color: #333; 
@@ -272,14 +346,25 @@
     <div class="phone-frame" id="phone-frame-capture">
         
         <div id="main-background"></div>
-
+        
+        <div id="control-buttons">
+            <button id="toggle-admin-btn" onclick="toggleAdminMode()">⚙️ 편집 모드</button>
+            <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ PNG 다운로드</button>
+        </div>
         <div id="course-list-view">
             <h3 class="course-list-header">💎 코스 목록 및 가격 💎</h3>
             
             <div id="course-items-container">
             </div>
             
-            <button id="download-list-btn" onclick="downloadFrameAsPNG(false)">🖼️ 현재 화면 PNG 다운로드</button>
+            </div>
+
+        <div id="admin-view">
+            <h3>🔑 코스 및 옵션 편집 모드</h3>
+            <div id="admin-course-editor">
+                </div>
+            <button class="admin-button-group" style="background-color:#5B5BFF; color:white;" onclick="addNewCourse()">➕ 새 코스 추가</button>
+            <button class="admin-button-group" style="background-color:#4CAF50; color:white;" onclick="saveAdminChanges()">💾 모든 변경 사항 저장</button>
         </div>
 
 
@@ -321,6 +406,7 @@
 </div>
 
 <script>
+    // 최초 기본 데이터
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 50000, options: [{name: '로리플', price: 20000}, {name: '애널', price: 15000}, {name: '코스추가1', price: 10000}, {name: '코스추가2', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -331,6 +417,8 @@
     
     let coursesData; 
     let currentSelectedCourseKey = null;
+    let isEditingMode = false;
+    let newCourseIndex = 0; 
 
     const formatPrice = (price) => price.toLocaleString('ko-KR');
 
@@ -342,15 +430,17 @@
             coursesData = INITIAL_COURSES;
         }
     }
+    
+    function saveCoursesData() {
+        localStorage.setItem('daisyCoursesData', JSON.stringify(coursesData));
+    }
 
-    // ★★★ 자동 저장 기능 (LocalStorage)
     function saveUserSelection() {
         if (!currentSelectedCourseKey) return;
 
         const savedSelections = JSON.parse(localStorage.getItem('daisyUserSelections')) || {};
         
         const selectedOptions = [];
-        // 현재 체크된 옵션들의 인덱스를 저장합니다.
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((checkbox, index) => {
             if (checkbox.checked) {
                 selectedOptions.push(index);
@@ -365,10 +455,15 @@
     }
 
 
-    // --- 뷰 전환 및 렌더링 ---
+    // --- 뷰 전환 및 렌더링 (사용자 모드) ---
     function renderCourseList() {
         document.getElementById('course-list-view').style.display = 'block';
         document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('admin-view').style.display = 'none'; 
+        
+        document.getElementById('toggle-admin-btn').textContent = '⚙️ 편집 모드';
+        document.getElementById('toggle-admin-btn').classList.remove('admin-mode-active');
+        document.getElementById('download-list-btn').style.display = 'block'; // 일반 모드일 때 다운로드 버튼 표시
 
         const itemsContainer = document.getElementById('course-items-container');
         let html = '';
@@ -386,20 +481,178 @@
         }
         itemsContainer.innerHTML = html;
         
-        document.getElementById('download-list-btn').style.display = 'block'; 
+        document.getElementById('phone-frame-capture').scrollTop = 0;
+    }
+    
+    function showCourseList() {
+        isEditingMode = false;
+        renderCourseList();
+        document.getElementById('detail-view').style.display = 'none';
+        closeFinalQuoteModal();
+    }
 
+
+    // --- 관리자 편집 모드 함수 ---
+    function toggleAdminMode() {
+        isEditingMode = !isEditingMode;
+        
+        if (isEditingMode) {
+            // 편집 모드 켜기
+            document.getElementById('course-list-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('admin-view').style.display = 'block';
+            document.getElementById('toggle-admin-btn').textContent = '❌ 편집 종료';
+            document.getElementById('toggle-admin-btn').classList.add('admin-mode-active');
+            document.getElementById('download-list-btn').style.display = 'none'; // 편집 모드일 때 다운로드 버튼 숨김
+            renderAdminEditor();
+        } else {
+            // 편집 모드 끄고 일반 목록으로 돌아가기
+            renderCourseList();
+        }
+    }
+
+    function renderAdminEditor() {
+        const editorContainer = document.getElementById('admin-course-editor');
+        let html = '';
+        
+        for (const key in coursesData) {
+            const course = coursesData[key];
+            
+            html += `
+                <div class="admin-course-item" data-key="${key}">
+                    <h4>${course.title} 코스 (${key})</h4>
+                    <label>코스 이름:</label>
+                    <input type="text" data-field="title" value="${course.title}">
+                    
+                    <label>시간:</label>
+                    <input type="text" data-field="time" value="${course.time}">
+                    
+                    <label>기본 금액:</label>
+                    <input type="number" data-field="basePrice" value="${course.basePrice}" class="price-input">
+                    <hr style="border-top:1px dashed #eee; margin:10px 0;">
+
+                    <h5>세부 옵션</h5>
+                    <div class="admin-options-container" id="options-${key}">
+            `;
+            
+            // 옵션 목록 렌더링
+            course.options.forEach((opt, index) => {
+                html += renderAdminOptionItem(key, index, opt.name, opt.price);
+            });
+            
+            html += `
+                    </div>
+                    <button style="background-color:#4CAF50; color:white; width:100%;" onclick="addOptionToCourse('${key}')">➕ 옵션 추가</button>
+                    <button style="background-color:#F44336; color:white; margin-top:10px;" onclick="deleteCourse('${key}')">❌ 코스 삭제</button>
+                </div>
+            `;
+        }
+        editorContainer.innerHTML = html;
         document.getElementById('phone-frame-capture').scrollTop = 0;
     }
 
+    function renderAdminOptionItem(courseKey, index, name, price) {
+        return `
+            <div class="admin-option-item" data-index="${index}">
+                <input type="text" value="${name}" data-opt-field="name" placeholder="옵션 이름">
+                <input type="number" value="${price}" data-opt-field="price" placeholder="가격" class="price-input">
+                <button style="background-color:#F44336; color:white;" onclick="deleteOptionFromCourse('${courseKey}', ${index})">삭제</button>
+            </div>
+        `;
+    }
+
+    function addOptionToCourse(courseKey) {
+        if (!coursesData[courseKey].options) {
+            coursesData[courseKey].options = [];
+        }
+        coursesData[courseKey].options.push({name: '새 옵션', price: 10000}); 
+        renderAdminEditor(); // 데이터 변경 후 전체 재렌더링
+    }
+    
+    function deleteOptionFromCourse(courseKey, index) {
+        if (coursesData[courseKey].options.length === 1) {
+            alert("최소한 하나의 옵션은 남겨야 합니다.");
+            return;
+        }
+        // coursesData에서 해당 옵션 삭제
+        coursesData[courseKey].options.splice(index, 1);
+        renderAdminEditor(); // 데이터 변경 후 전체 재렌더링
+    }
+
+    function addNewCourse() {
+        const keyPrefix = 'custom';
+        let newKey = keyPrefix + newCourseIndex;
+        while(coursesData.hasOwnProperty(newKey)) {
+            newCourseIndex++;
+            newKey = keyPrefix + newCourseIndex;
+        }
+        
+        coursesData[newKey] = {
+            title: '새로운 코스', 
+            time: '0시간', 
+            basePrice: 0, 
+            options: [{name: '기본 옵션', price: 0}]
+        };
+        newCourseIndex++;
+        renderAdminEditor();
+    }
+    
+    function deleteCourse(courseKey) {
+        if (Object.keys(coursesData).length === 1) {
+            alert("최소한 하나의 코스는 남겨야 합니다.");
+            return;
+        }
+        if (confirm(`정말로 코스 [${coursesData[courseKey].title}]을 삭제하시겠습니까?`)) {
+            delete coursesData[courseKey];
+            renderAdminEditor();
+        }
+    }
+
+    function saveAdminChanges() {
+        const editorItems = document.querySelectorAll('#admin-course-editor .admin-course-item');
+        const newCoursesData = {};
+
+        editorItems.forEach(item => {
+            const oldKey = item.dataset.key;
+            
+            const title = item.querySelector('input[data-field="title"]').value;
+            const time = item.querySelector('input[data-field="time"]').value;
+            const basePriceInput = item.querySelector('input[data-field="basePrice"]');
+            const basePrice = parseInt(basePriceInput.value) || 0;
+            
+            const newOptions = [];
+            item.querySelectorAll('.admin-option-item').forEach(optionItem => {
+                const name = optionItem.querySelector('input[data-opt-field="name"]').value;
+                const priceInput = optionItem.querySelector('input[data-opt-field="price"]');
+                const price = parseInt(priceInput.value) || 0;
+                newOptions.push({name: name, price: price});
+            });
+
+            newCoursesData[oldKey] = {
+                title: title,
+                time: time,
+                basePrice: basePrice,
+                options: newOptions
+            };
+        });
+
+        coursesData = newCoursesData;
+        saveCoursesData(); 
+        alert("✅ 코스 데이터가 성공적으로 저장되었습니다! 일반 가격표로 돌아갑니다.");
+        toggleAdminMode(); // 저장 후 일반 모드로 자동 전환
+    }
+
+    // --- 사용자 상호작용 함수 (이전과 동일) ---
     function selectCourse(key) {
         currentSelectedCourseKey = key;
         const course = coursesData[key];
         
         document.getElementById('course-list-view').style.display = 'none';
+        document.getElementById('admin-view').style.display = 'none';
         document.getElementById('detail-view').style.display = 'flex';
         
-        document.getElementById('download-list-btn').style.display = 'none'; 
-        
+        // 버튼 그룹은 그대로 유지
+
         document.getElementById('detail-title-selected').textContent = course.title + ' 코스';
         document.getElementById('detail-time-selected').textContent = course.time;
         document.getElementById('detail-price-selected-val').textContent = formatPrice(course.basePrice);
@@ -425,21 +678,17 @@
         });
         optionsList.innerHTML = html;
         
-        // ★★★ 초기 체크 상태 로딩 및 설정 (자동 저장 기능)
         const savedSelections = JSON.parse(localStorage.getItem('daisyUserSelections')) || {};
         const currentCourseSaved = savedSelections[currentSelectedCourseKey];
         
         let optionsToPreCheck = [];
 
         if (currentCourseSaved && Array.isArray(currentCourseSaved.selectedOptions)) {
-            // 1. 저장된 상태가 있다면 로드
             optionsToPreCheck = currentCourseSaved.selectedOptions;
-        } else if (currentSelectedCourseKey === 'sapphire') {
-            // 2. 저장된 상태가 없고 사파이어 코스라면 기본 옵션 설정 ('애널' 옵션은 index 1)
+        } else if (currentSelectedCourseKey && coursesData[currentSelectedCourseKey].title === '사파이어') { // '사파이어' 코스 기본 체크
             optionsToPreCheck = [1]; 
         }
         
-        // 3. 체크박스 상태 적용
         document.querySelectorAll('#options-list input[type="checkbox"]').forEach((cb, index) => {
             if (optionsToPreCheck.includes(index)) {
                 cb.checked = true;
@@ -448,7 +697,6 @@
             }
         });
         
-        // 최초 로딩 후 가격 업데이트 및 상태 저장
         updateTotalPrice();
     }
 
@@ -465,17 +713,9 @@
 
         document.getElementById('current-total-price').textContent = '₩ ' + formatPrice(totalPrice);
         
-        // ★ 옵션 변경 시 자동 저장
         saveUserSelection(); 
     }
 
-    function showCourseList() {
-        renderCourseList();
-        document.getElementById('detail-view').style.display = 'none';
-        closeFinalQuoteModal();
-    }
-
-    // --- 최종 견적 모달 함수 ---
     function showFinalQuote() {
         if (!currentSelectedCourseKey) return;
         
@@ -514,44 +754,33 @@
     function closeFinalQuoteModal() {
         document.getElementById('final-quote-modal').style.display = 'none';
     }
-
-    // --- PNG 다운로드 기능 (코스 목록/모달 캡처용) ---
-    // isModalDownload: true = 모달 캡처, false = 전체 프레임 캡처
+    
+    // --- PNG 다운로드 기능 ---
     function downloadFrameAsPNG(isModalDownload) {
-        let captureElement;
-        let fileName;
-        
-        if (isModalDownload) {
-            // 견적서 모달 캡처 (이 기능은 버튼이 삭제되어 더 이상 사용되지 않지만, 다른 캡처를 위해 함수는 남겨둡니다.)
-            captureElement = document.getElementById('modal-capture-target'); 
-            fileName = 'DAISY_최종견적서.png';
-            alert("죄송합니다. 견적서 다운로드 기능은 요청에 따라 제거되었습니다.");
-            return; // 모달 다운로드 요청 시 종료
-        } else {
-            // 코스 목록 뷰 캡처 (phone-frame-capture 전체)
-            captureElement = document.getElementById('phone-frame-capture'); 
-            fileName = 'DAISY_코스목록_캡처.png';
+        if (isEditingMode) {
+            alert("편집 모드에서는 캡처할 수 없습니다. 일반 가격표 보기로 전환해 주세요.");
+            return;
         }
+        
+        let captureElement = document.getElementById('phone-frame-capture'); 
+        let fileName = 'DAISY_코스목록_캡처.png';
 
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
-            // 캡처에서 제외할 요소: 모든 버튼 (Action 및 Modal)
             ignoreElements: (node) => {
-                if (node.classList.contains('modal-button') || node.classList.contains('action-btn')) {
+                // 캡처에서 제외할 요소: 모달 버튼, 견적/뒤로가기 버튼, 그리고 상단 버튼 그룹의 요소 자체를 제외
+                if (node.classList.contains('modal-button') || node.classList.contains('action-btn') || node.parentElement.id === 'control-buttons') {
                     return true;
                 }
-                // 코스 목록 뷰 캡처 시, 다운로드 버튼을 제외
-                if (node.id === 'download-list-btn') {
+                // 코스 목록 뷰 캡처 시, control-buttons 전체를 제외
+                if (node.id === 'control-buttons') {
                     return true;
                 }
                 return false;
             },
-            // 모달 캡처 시 windowHeight와 scrollY를 조정할 필요 없음 (요소 크기만 캡처)
-            ...(isModalDownload ? {} : {
-                windowHeight: captureElement.scrollHeight,
-                scrollY: -captureElement.scrollTop
-            })
+            windowHeight: captureElement.scrollHeight,
+            scrollY: -captureElement.scrollTop
         }).then(canvas => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
