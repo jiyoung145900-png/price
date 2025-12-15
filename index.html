@@ -44,7 +44,6 @@
             opacity: 0.8; 
             /* 여기에 배경 이미지 스타일을 넣어주세요. */
         }
-        /* 모든 콘텐츠가 배경 위에 보이도록 z-index 설정 */
         header, #course-list-view, #detail-view, #admin-panel {
             position: relative;
             z-index: 1; 
@@ -57,15 +56,10 @@
             margin-bottom: 20px; 
             border-bottom: 2px solid #ffb6c1; 
         }
-        #logo-placeholder {
-            width: 100%;
-            height: 120px; 
-            margin: 0 auto 10px;
-            display: block;
-        }
+        #logo-placeholder { width: 100%; height: 120px; margin: 0 auto 10px; display: block; }
         h2 { color: #5B5BFF; font-size: 1.2em; margin-top: 5px; }
 
-        /* --- 3. 코스 목록 (첫 화면) 스타일 --- */
+        /* --- 3. 코스 목록 및 상세 스타일 --- */
         .course-item {
             background-color: rgba(255, 250, 252, 0.9); 
             border: 1px solid #ffb6c1;
@@ -78,29 +72,25 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .course-item:hover { background-color: #ffe0f6; }
-        .course-item.active { background-color: #ff69b4; color: white; }
-        .course-title { font-weight: bold; font-size: 1.1em; color: #d11e8a; }
-        .course-item.active .course-title { color: white; }
-        .course-price { font-size: 1.2em; font-weight: 900; color: #ff0000; margin-top: 5px; }
-        .course-item.active .course-price { color: #fff; }
-
-        /* --- 4. 상세 정보 및 옵션 (두 번째 화면) 스타일 --- */
         #detail-view { 
-            padding: 20px; 
-            border: 2px solid #5B5BFF; 
-            border-radius: 10px; 
             background-color: rgba(245, 248, 255, 0.95); 
-            display: none; 
-            flex-direction: column;
-            animation: fadeIn 0.5s;
-        }
-        .option-item label { 
-            background-color: rgba(249, 249, 249, 0.9); 
-            display: block; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; 
+            /* ... 기타 스타일 ... */
         }
         
-        /* --- 5. 최종 견적 모달 (캡처용) --- */
+        /* 버튼 */
+        .action-btn { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            border: none;
+            transition: background-color 0.2s;
+        }
+        #quote-modal-btn { background-color: #ff69b4; color: white; }
+        
+        /* --- 4. 최종 견적 모달 (캡처용) --- */
         .modal-overlay { 
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -115,22 +105,26 @@
             width: 90%; 
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            /* 캡처를 위해 max-height 및 overflow를 제거하거나 신중하게 관리 */
         }
         .quote-header { text-align: center; border-bottom: 3px solid #ff69b4; padding-bottom: 10px; margin-bottom: 20px;}
-        .quote-header h3 { color: #d11e8a; margin: 0; font-size: 1.8em; }
-        .quote-options h4 { color: #d11e8a; margin-top: 0; }
-        .quote-options ul { list-style: none; padding-left: 0; }
-        .quote-options li { margin-bottom: 5px; font-size: 1em; padding-left: 15px; text-indent: -15px; }
-        .final-total { 
-            text-align: center; 
-            margin-top: 30px; 
-            padding-top: 15px; 
-            border-top: 2px dashed #ff69b4;
-        }
         .final-total .total-price { font-size: 2.5em; font-weight: 900; color: #ff0000; }
         
-        /* --- 6. 관리자/다운로드 버튼 (화면 밖 배치) --- */
+        /* 모달 내부 버튼 스타일 */
+        .modal-button {
+            background-color: #5B5BFF; 
+            color: white; 
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        #modal-close-btn { background-color: #ccc; color: #333; margin-top: 15px;}
+
+
+        /* --- 5. 관리자/다운로드 버튼 (화면 밖 배치) --- */
         #external-controls {
             position: absolute;
             left: 100%; 
@@ -140,8 +134,28 @@
             flex-direction: column;
             gap: 10px;
         }
-        #admin-mode-btn, #png-download-btn { background-color: orange; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; }
+        #admin-mode-btn, #png-download-btn, #external-save-btn { 
+            background-color: orange; 
+            color: white; 
+            padding: 10px 15px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            border: none; 
+            font-weight: bold; 
+        }
         #png-download-btn { background-color: #5B5BFF; }
+        #external-save-btn { background-color: green; display: none; } /* 초기에는 숨김 */
+
+        /* --- 6. 관리자 패널 스타일 --- */
+        #admin-panel { 
+            display: none; 
+            padding: 20px; 
+            border: 3px solid orange; 
+            background-color: #fff8e1; 
+            border-radius: 10px; 
+            margin-bottom: 20px;
+        }
+        /* 참고: '저장' 버튼은 외부로 이동되었으므로 패널 내부 스타일에서 삭제됨 */
     </style>
 </head>
 <body>
@@ -150,26 +164,25 @@
     
     <div id="external-controls">
         <button id="admin-mode-btn" onclick="toggleAdminMode()">⚙️ 가격/옵션 설정</button>
+        <button id="external-save-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
         <button id="png-download-btn" onclick="downloadFrameAsPNG()">🖼️ PNG 다운로드</button>
     </div>
 
     <div class="phone-frame" id="phone-frame-capture">
         
-        <div id="main-background">
-            </div>
+        <div id="main-background"></div>
 
         <header>
             <div id="logo-placeholder">
                 <h1 style="color:#d11e8a; margin:0;">DAISY HOOKUPS</h1>
                 <h2 style="color:#5B5BFF; margin-top:5px;">FIND YOUR MATCH</h2>
             </div>
-            
         </header>
 
         <div id="admin-panel">
             <h3>관리자 패널 - 가격 및 옵션 수정</h3>
+            <p>수정 후 **화면 밖의 '✅ 변경 사항 저장' 버튼**을 눌러주세요.</p>
             <div id="admin-inputs"></div>
-            <button id="save-btn" class="action-btn" onclick="saveAdminData()">✅ 변경 사항 저장</button>
         </div>
 
 
@@ -184,9 +197,9 @@
 
             <div id="options-list">
                 <h3>선택 옵션 추가 (복수 선택 가능)</h3>
-                </div>
+            </div>
             
-            <button id="quote-modal-btn" class="action-btn" onclick="showFinalQuote()">💸 최종 견적서 보기 (캡처용)</button>
+            <button id="quote-modal-btn" class="action-btn" onclick="showFinalQuote()">💸 최종 견적서 보기</button>
             <button id="back-btn" class="action-btn" onclick="showCourseList()">← 코스 목록으로 돌아가기</button>
         </div>
     </div>
@@ -206,11 +219,15 @@
             <div class="total-price">₩ <span id="modal-total-price">0</span></div>
         </div>
 
-        <button onclick="closeFinalQuoteModal()" style="background-color:#5B5BFF; color:white; margin-top:25px;">닫기 (캡처 후 사용)</button>
+        <button class="modal-button" onclick="downloadFrameAsPNG(true)">🖼️ 이 견적서 PNG 다운로드</button>
+        <button id="modal-close-btn" class="modal-button" onclick="closeFinalQuoteModal()">닫기 (다운로드 후 사용)</button>
     </div>
 </div>
 
 <script>
+    // **********************************************
+    // ★★★ 1. 초기 코스 데이터 (관리자 모드에서 수정 가능) ★★★
+    // **********************************************
     const INITIAL_COURSES = {
         'sapphire': { title: '사파이어', time: '1시간', basePrice: 100000, options: [{name: '추가 음료', price: 10000}, {name: '간단한 스낵', price: 5000}] },
         'emerald': { title: '에메랄드', time: '2시간', basePrice: 180000, options: [{name: '프리미엄 공간', price: 30000}, {name: '맞춤형 BGM', price: 10000}] },
@@ -295,7 +312,7 @@
     function showCourseList() {
         renderCourseList();
         document.getElementById('detail-view').style.display = 'none';
-        closeFinalQuoteModal(); // 혹시 모를 모달 닫기
+        closeFinalQuoteModal();
     }
 
     // --- 최종 견적 모달 함수 ---
@@ -339,11 +356,15 @@
     // --- 관리자 모드 및 저장 함수 ---
     function toggleAdminMode() {
         const adminPanel = document.getElementById('admin-panel');
+        const externalSaveBtn = document.getElementById('external-save-btn');
+
         if (adminPanel.style.display === 'none' || adminPanel.style.display === '') {
             adminPanel.style.display = 'block';
+            externalSaveBtn.style.display = 'block'; // 저장 버튼 보이기
             renderAdminPanel();
         } else {
             adminPanel.style.display = 'none';
+            externalSaveBtn.style.display = 'none'; // 저장 버튼 숨기기
         }
     }
 
@@ -352,6 +373,7 @@
         let html = '';
         for (const key in coursesData) {
             const course = coursesData[key];
+            // JSON.stringify(null, 2)를 사용하여 예쁘게 포매팅
             const optionsJson = JSON.stringify(course.options, null, 2); 
 
             html += `
@@ -393,6 +415,9 @@
             coursesData = newCoursesData;
             saveCoursesData(); 
             renderCourseList(); 
+            // 저장 성공 시 관리자 모드 자동 닫기 및 버튼 숨기기
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('external-save-btn').style.display = 'none';
             alert('✅ 관리자 설정이 성공적으로 저장되었습니다!\n새로운 가격과 옵션으로 적용되었습니다.');
 
         } catch (e) {
@@ -400,29 +425,29 @@
         }
     }
 
-    // --- PNG 다운로드 기능 (수정됨) ---
-    function downloadFrameAsPNG() {
+    // --- PNG 다운로드 기능 (모달 내부/외부 버튼 모두 사용) ---
+    function downloadFrameAsPNG(isModalDownload) {
         let captureElement;
         let fileName;
         
-        // 1. 최종 견적 모달이 열려있는지 확인
-        if (document.getElementById('final-quote-modal').style.display === 'flex') {
+        // isModalDownload이 true이거나, 모달이 실제로 열려있을 때
+        if (isModalDownload || document.getElementById('final-quote-modal').style.display === 'flex') {
             captureElement = document.getElementById('modal-capture-target'); // 모달 내용 캡처
             fileName = 'DAISY_최종견적서.png';
         } else {
             captureElement = document.getElementById('phone-frame-capture'); // 휴대폰 프레임 전체 캡처
-            fileName = 'DAISY_가격표.png';
+            fileName = 'DAISY_가격표_전체.png';
         }
 
-        // html2canvas를 사용하여 캡처
         html2canvas(captureElement, {
             scale: 2, 
             useCORS: true,
             ignoreElements: (node) => {
-                // 모달 닫기 버튼은 캡처에서 제외
+                // 모달 내부에서 캡처할 때, 닫기 버튼과 PNG 다운로드 버튼은 캡처에서 제외
                 if (captureElement.id === 'modal-capture-target') {
-                    return node.tagName === 'BUTTON' && node.textContent.includes('닫기');
+                    return node.classList.contains('modal-button');
                 }
+                // 프레임 캡처 시에는 프레임 내의 모든 콘텐츠를 캡처
                 return false;
             }
         }).then(canvas => {
@@ -443,7 +468,6 @@
     window.onload = () => {
         loadCoursesData();
         renderCourseList();
-        // 초기화 시 모달을 숨김 상태로 시작
         document.getElementById('final-quote-modal').style.display = 'none';
     };
 </script>
